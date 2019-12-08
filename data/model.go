@@ -27,7 +27,7 @@ func bToMb(b uint64) uint64 {
 }
 func ExecuteLongRunningTaskOnRequest() {
     for {
-		PrintMemUsage()
+		//PrintMemUsage()
 		time.Sleep(2 * time.Second)
 		if GlobalConfig.RequestExecution {
 			readSite()

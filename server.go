@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	routers "dev.azure.com/WordList/WordListExtractor/Application/routers"
-	data "dev.azure.com/WordList/WordListExtractor/Application/data"
+	routers "github.com/mazeForGit/WordlistPageExtractor/routers"
+	data "github.com/mazeForGit/WordlistPageExtractor/data"
 	
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/static"
@@ -31,6 +31,10 @@ func main() {
 	router.GET("/index", routers.Index)
 	router.NoRoute(routers.NotFoundError)
 	router.GET("/health", routers.HealthGET)
+	
+	router.GET("/config", routers.ConfigGET)
+	router.POST("/config", routers.ConfigPOST)
+	router.PUT("/config", routers.ConfigPUT)
 	
 	log.Info("starting background process")
 	go data.ExecuteLongRunningTaskOnRequest()
