@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"runtime"
 	"time"
+	"strconv"
 )
 
 var GlobalConfig Config
@@ -30,6 +31,7 @@ func ExecuteLongRunningTaskOnRequest() {
 		//PrintMemUsage()
 		time.Sleep(2 * time.Second)
 		if GlobalConfig.RequestExecution {
+			fmt.Println("ExecuteLongRunningTaskOnRequest true")
 			readSite()
 		}
 	}
@@ -47,6 +49,7 @@ func readSite() {
     fmt.Println("connect to wordlist and get words with tests = " + requestUrl)
     resp, err = http.Get(requestUrl)
     if err != nil {
+		fmt.Println("error ..")
         fmt.Println(err.Error())
         return
     }
@@ -54,6 +57,7 @@ func readSite() {
     defer resp.Body.Close()
     body, err = ioutil.ReadAll(resp.Body)
     if err != nil {
+		fmt.Println("error ..")
         fmt.Println(err.Error())
         return
     }
@@ -62,6 +66,9 @@ func readSite() {
     s.Text = ""
     json.Unmarshal(body, &GlobalWordList.Words)
 
-    fmt.Println(GlobalWordList.Words)
+	fmt.Println("result")
+    fmt.Println("Words = " + strconv.Itoa(len(GlobalWordList.Words)))
+	GlobalConfig.RequestExecution = false
+	
     return
 }
