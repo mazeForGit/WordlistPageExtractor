@@ -33,6 +33,8 @@ type WordList struct {
 type Config struct {
     RequestExecution  bool	`json:"requestexecution"`
     WordListUrl  string	`json:"wordlisturl"`
+	PageToScan string `json:"pagetoscan"`
+	DomainsAllowed string `json:"domainsallowed"`
 }
 
 func (wl WordList) containsTestCategory(test string, category string) bool {
