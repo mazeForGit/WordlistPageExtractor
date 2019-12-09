@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	routers "github.com/mazeForGit/WordlistPageExtractor/routers"
-	data "github.com/mazeForGit/WordlistPageExtractor/data"
+	routers "WordlistPageExtractor/routers"
+	data "WordlistPageExtractor/data"
 	
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/static"
