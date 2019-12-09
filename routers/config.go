@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	data "WordlistPageExtractor/data"
+	data "github.com/Wordlist/WordlistPageExtractor/data"
 )
 func ConfigGET(c *gin.Context) {
 	c.JSON(200, data.GlobalConfig)

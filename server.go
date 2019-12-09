@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	routers "WordlistPageExtractor/routers"
-	data "WordlistPageExtractor/data"
+	routers "github.com/Wordlist/WordlistPageExtractor/routers"
+	data "github.com/Wordlist/WordlistPageExtractor/data"
 	
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/static"
