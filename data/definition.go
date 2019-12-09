@@ -35,3 +35,11 @@ type Config struct {
     WordListUrl  string	`json:"wordlisturl"`
 }
 
+func (wl WordList) containsTestCategory(test string, category string) bool {
+	for i := 0; i < len(wl.Tests); i++ {
+        if wl.Tests[i].Name == test && wl.Tests[i].Category == category {
+			return true
+        }
+    }
+    return false
+}

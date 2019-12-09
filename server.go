@@ -35,7 +35,7 @@ func main() {
 	router.GET("/config", routers.ConfigGET)
 	router.POST("/config", routers.ConfigPOST)
 	router.PUT("/config", routers.ConfigPUT)
-	router.GET("/wordlist", routers.WordlistGET)
+	router.GET("/wordlist", routers.WordListGET)
 	
 	log.Info("starting background process")
 	go data.ExecuteLongRunningTaskOnRequest()

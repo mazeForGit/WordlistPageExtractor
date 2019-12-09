@@ -38,8 +38,7 @@ func ExecuteLongRunningTaskOnRequest() {
 }
 
 func readSite() {
-    var s Status
-	var err error
+    var err error
 	var resp *http.Response
 	var body []byte
 	var requestUrl string = ""
@@ -63,11 +62,10 @@ func readSite() {
     }
     //fmt.Println("body = " + string(body))
 
-    s.Text = ""
     json.Unmarshal(body, &GlobalWordList.Words)
 
-	fmt.Println("result")
-    fmt.Println("Words = " + strconv.Itoa(len(GlobalWordList.Words)))
+    fmt.Println("got GlobalWordList.Words = " + strconv.Itoa(len(GlobalWordList.Words)))
+    //fmt.Println(GlobalWordList.Words)
 	GlobalConfig.RequestExecution = false
 	
     return
