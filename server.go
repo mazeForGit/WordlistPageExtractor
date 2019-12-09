@@ -3,12 +3,12 @@ package main
 import (
 	"os"
 
-	routers "github.com/Wordlist/WordlistPageExtractor/routers"
-	data "github.com/Wordlist/WordlistPageExtractor/data"
-	
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/static"
 	log "github.com/sirupsen/logrus"
+
+	routers "github.com/mazeForGit/WordlistPageExtractor/routers"
+	data "github.com/mazeForGit/WordlistPageExtractor/data"
 )
 
 func getPort() string {
