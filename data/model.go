@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"sort"
 	
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
@@ -17,6 +18,12 @@ import (
 
 var GlobalConfig Config
 var GlobalWordList WordList
+
+type SorterWordByOccurance []Word
+
+func (a SorterWordByOccurance) Len() int           { return len(a) }
+func (a SorterWordByOccurance) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a SorterWordByOccurance) Less(i, j int) bool { return a[i].Occurance > a[j].Occurance }
 
 func PrintMemUsage() {
 	// from: https://golangcode.com/print-the-current-memory-usage/
@@ -35,14 +42,45 @@ func ExecuteLongRunningTaskOnRequest() {
     for {
 		//PrintMemUsage()
 		time.Sleep(2 * time.Second)
-		if GlobalConfig.RequestExecution {
-			fmt.Println("ExecuteLongRunningTaskOnRequest true")
+		if GlobalConfig.RequestExecution && !GlobalConfig.ExecutionStarted {
+			
+			// just run once
+			GlobalConfig.RequestExecution = false
+			
+			d := GlobalConfig.PageToScan
+			last1  := d[len(d)-1:]
+			if (last1 == "/") {
+				d = d[:len(d)-1]
+				GlobalConfig.PageToScan = d
+			}
+			d = strings.Replace(d, "https://", "", 1)
+			d = strings.Replace(d, "http://", "", 1)
+			
+			GlobalConfig.DomainsAllowed = d
+			GlobalConfig.NumberLinksFound = 0
+			GlobalConfig.NumberLinksVisited = 0
+			GlobalConfig.ExecutionStarted = true
+			GlobalConfig.ExecutionFinished = false
+			GlobalConfig.WordsScanned = 0
+			
+			fmt.Println(GlobalConfig)
+			
 			readSite()
+			
+			GlobalWordList = DeleteWordsWithOccuranceZero(GlobalWordList)
+			fmt.Println("have GlobalWordList.Words = " + strconv.Itoa(len(GlobalWordList.Words)))
+			sort.Sort(SorterWordByOccurance(GlobalWordList.Words))
+			//fmt.Println(GlobalWordList)
+			
+			GlobalConfig.ExecutionStarted = false
+			GlobalConfig.ExecutionFinished = true
 		}
 	}
 }
 
 func readSite() {
+	fmt.Println("readSite")
+	
     var err error
 	var resp *http.Response
 	var body []byte
@@ -67,25 +105,19 @@ func readSite() {
     
     json.Unmarshal(body, &GlobalWordList.Words)
     fmt.Println("got GlobalWordList.Words = " + strconv.Itoa(len(GlobalWordList.Words)))
-    // just run once
-	GlobalConfig.RequestExecution = false
-    
+        
     // do something with the result
 	Crawler(GlobalConfig.PageToScan, GlobalConfig.DomainsAllowed)
 	
-	for i := 0; i < len(GlobalWordList.Words); i++ {
-		if GlobalWordList.Words[i].Occurance > 0 {
-			fmt.Println("found word = " + GlobalWordList.Words[i].Name + ", Occurance = " + strconv.Itoa(GlobalWordList.Words[i].Occurance))
-		}
-	}
-			
 	return
 }
 
 func Crawler(mainPage string, allowedDomains string) {
+	fmt.Println("Crawler .. mainPage = " + mainPage + ", allowedDomains = " + allowedDomains)
+	
 	// Instantiate default collector
 	c := colly.NewCollector(
-		// Visit only domains
+		// visit only domains
 		colly.AllowedDomains(allowedDomains),
 	)
 
@@ -94,6 +126,7 @@ func Crawler(mainPage string, allowedDomains string) {
 		link := e.Attr("href")
 		// print link
 		//fmt.Printf("Link found: %q -> %s\n", e.Text, link)
+		GlobalConfig.NumberLinksFound++
 		
 		if strings.HasSuffix(link, "/") || strings.HasSuffix(link, ".html") || strings.HasSuffix(link, ".htm") {
 			// Visit link found on page
@@ -102,12 +135,14 @@ func Crawler(mainPage string, allowedDomains string) {
 		}
 	})
 
-	// Before making a request print "Visiting ..."
-	//c.OnRequest(func(r *colly.Request) {
-	//	fmt.Println("Visiting", r.URL.String())
-	//})
+	// Before making a request ..
+	c.OnRequest(func(r *colly.Request) {
+		GlobalConfig.NumberLinksVisited++
+		//fmt.Println("Visiting", r.URL.String())
+	})
 	
-	// after making a request get body from the context of the request
+	// after making a request ..
+	// get body from the context of the request
 	c.OnResponse(func(r *colly.Response) {
 		//fmt.Println(".. OnResponse")
 		//fmt.Println("Content-Type=", r.Headers.Get("Content-Type"))
@@ -131,7 +166,7 @@ func Crawler(mainPage string, allowedDomains string) {
 		}
 	})
 	
-	// Start scraping on 
+	fmt.Println("start crawler")
 	c.Visit(mainPage)
 }
 
@@ -148,7 +183,8 @@ func FindWordsFromText(t string) {
 	count := 0
 	for _, value := range tt_ {
 		ss := strings.TrimSpace(value) 
-		if len(ss) > 0 { 
+		if len(ss) > 1 { 
+			GlobalConfig.WordsScanned++
 			for i := 0; i < len(GlobalWordList.Words); i++ {
 				if GlobalWordList.Words[i].Name == ss {
 					GlobalWordList.Words[i].Occurance++

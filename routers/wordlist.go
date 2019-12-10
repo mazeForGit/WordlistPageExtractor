@@ -6,5 +6,6 @@ import (
 )
 
 func WordListGET(c *gin.Context) {
-	c.JSON(200, data.GlobalWordList)
+	c.Header("Content-Type", "application/json")
+	c.JSON(200, data.GlobalWordList.Words)
 }

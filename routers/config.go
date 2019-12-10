@@ -1,6 +1,8 @@
 package routers
 
 import (
+	//"fmt"
+
 	"github.com/gin-gonic/gin"
 	data "github.com/mazeForGit/WordlistPageExtractor/data"
 )
@@ -33,13 +35,19 @@ func ConfigPOST(c *gin.Context) {
 	//fmt.Println("execution = " + execution)
 	if execution == "true" {
 		
+		err := c.BindJSON(&data.GlobalConfig)
+		if err != nil {
+			s = data.Status{Code: 422, Text: "unknown request"}
+			c.JSON(422, s)
+			return
+		}
+		//fmt.Println(data.GlobalConfig)
 		if (data.GlobalConfig.WordListUrl == "") {
 			s = data.Status{Code: 422, Text: "missing data"}
 			c.JSON(200, s)
 			return
 		}
 		//fmt.Println("start execution")
-		
 		data.GlobalConfig.RequestExecution = true
 		
 		s = data.Status{Code: 200, Text: "start execution"}

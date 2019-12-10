@@ -35,13 +35,21 @@ type Config struct {
     WordListUrl  string	`json:"wordlisturl"`
 	PageToScan string `json:"pagetoscan"`
 	DomainsAllowed string `json:"domainsallowed"`
+	NumberLinksFound int `json:"numberlinksfound"`
+	NumberLinksVisited int `json:"numberlinksvisited"`
+	ExecutionStarted bool `json:"executionstarted"`
+	ExecutionFinished bool `json:"executionfinished"`
+	WordsScanned int `json:"wordsscanned"`
 }
 
-func (wl WordList) containsTestCategory(test string, category string) bool {
-	for i := 0; i < len(wl.Tests); i++ {
-        if wl.Tests[i].Name == test && wl.Tests[i].Category == category {
-			return true
-        }
-    }
-    return false
+func DeleteWordsWithOccuranceZero(wl WordList) (WordList) {
+    var newwl WordList
+	for i := 0; i < len(wl.Words); i++ {
+		if wl.Words[i].Occurance > 0 {
+			wl.Words[i].Tests = nil
+			newwl.Words = append(newwl.Words, wl.Words[i])
+			newwl.Count++
+		}
+	}
+    return newwl
 }

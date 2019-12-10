@@ -2,7 +2,8 @@ package main
 
 import (
 	"os"
-
+"net/http"
+"strconv"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/static"
 	log "github.com/sirupsen/logrus"
@@ -20,6 +21,7 @@ func getPort() string {
 }
 
 func main() {
+
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 
