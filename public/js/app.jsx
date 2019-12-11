@@ -27,11 +27,8 @@ class App extends React.Component {
 		this.startExecution();
 	}
 	componentDidMount() {
-		//console.log('componentDidMount')
-		//this.readConfigData()
+		console.log('componentDidMount')
 		this.interval = setInterval(() => this.readConfigData(), 5000);
-		//this.interval = setInterval(() => this.setState({ time: Date.now() }), 10000);
-		//setInterval(this.loadData, 5000);
 	}
 	componentWillUnmount() {
 		clearInterval(this.interval);
@@ -39,7 +36,7 @@ class App extends React.Component {
 	async startExecution() {
 		try {
 			console.log('startExecution ..')
-			var reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config?execution=true"
+			var reqUrl = window.location.protocol + "//" + window.location.hostname + "/config?execution=true"
 			console.log('request to url = ' + reqUrl)
 			const res = await fetch(url, {
 				method: 'POST',
@@ -65,7 +62,7 @@ class App extends React.Component {
 		try {
 			if (this.state.requestexecution) {
 				console.log('readConfigData')
-				var reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config"
+				var reqUrl = window.location.protocol + "//" + window.location.hostname + "/config"
 				console.log('request to url = ' + reqUrl)
 				const res = await fetch(reqUrl);
 				const blocks = await res.json();

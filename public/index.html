@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WordList Index</title>
+</head>
+<body>
+	<h3>aim and architecture</h3>
+	
+	The aim is to play around with various cloud providers and bring an real use case to life.
+	<br>The <a href="https://wordlist.eu-gb.mybluemix.net/">words extractor app</a> (hosted at cloud using IBM) connects to server (<a href="https://www.dwds.de">dwds</a>} and extracts words one by another. Selected words {adjectives} are extracted and send to <a href="http://wordlist-env-dev.jxeaxibfcu.eu-central-1.elasticbeanstalk.com/">wordlist storage app</a> {hosted at cloud using AWS EB}. The <a href="https://wordlist.eu-gb.mybluemix.net/">page extractor app</a> (hosted at cloud using Azure) connects to the wordlist storage app and gets a reference list of words. The crawler scans a web page, extracts words from text and stores the results matching with the reference list. 
+	
+    <h3>used tools</h3>
+    <ul>
+        <li>IDE: notepad++, VS Code</li>
+        <li>API definition: swagger</li>
+        <li>manual Testing: Postman</li>
+        <li>cloud experience: IBM, AWS EB, Azure</li>
+        <li>learning:
+                <ul>
+                    <li>
+                        <a href="https://idratherbewriting.com/learnapidoc/restapispecifications.html">OpenAPI</a>
+                    </li>
+					<li>
+                        <a href="https://dev.to/moficodes/build-your-first-rest-api-with-go-2gcj">golang and REST</a>
+                    </li>
+					<li>
+                        <a href="https://github.com/gin-contrib/sessions">golang and session handling</a>
+                    </li>
+                    <li>
+                        <a href="https://medium.com/@kelvin_sp/building-and-testing-a-rest-api-in-golang-using-gorilla-mux-and-mysql-1f0518818ff6">golang and Testing</a>
+                    </li>
+					<li>
+                        <a href="https://hakaselogs.me/2018-04-20/building-a-web-app-with-go-gin-and-react/">REACT</a>
+                    </li>
+					
+                </ul>
+        </li>
+    </ul>
+	
+    <h3>api endpoints for wordlist</h3>
+
+    <table border="0">
+        <tr valign="top">
+            <td><b>action</b></td>
+            <td><b>endpoint</b></td>
+            <td><b>description</b></td>
+        </tr>
+        <tr valign="top">
+            <td>GET</td>
+            <td>/words</td>
+            <td>view list of words</td>
+        </tr>
+        <tr valign="top">
+            <td>GET</td>
+            <td>/words?format={format}</td>
+            <td>view list of words using {format}=json|csv</td>
+        </tr>
+		<tr valign="top">
+            <td>GET</td>
+            <td>/words?name={name}</td>
+            <td>view word by {name}</td>
+        </tr>
+		<tr valign="top">
+            <td>GET</td>
+            <td>/words?name={name}
+				<br>&format={format}
+				<br>&testOnly={testOnly}
+				<br>&newOnly={newOnly}</td>
+            <td>view list of words by Prefix{name} 
+				<br>using {format}=json|csv
+				<br>{testOnly}=true|false (default) inlcude only words where tests are present
+				<br>{newOnly}=true|false (default) inlcude only words where new is set</td>
+        </tr>
+        <tr valign="top">
+            <td>GET</td>
+            <td>/words/{id}</td>
+            <td>view words by {id}</td>
+        </tr>
+        <tr valign="top">
+            <td>POST</td>
+            <td>/words</td>
+            <td>add word to list
+				<br>request body contains json(word)</td>
+        </tr>
+        <tr valign="top">
+            <td>DELETE</td>
+            <td>/words/{id}</td>
+            <td>delete word with {id} from list</td>
+        </tr>
+        <tr valign="top">
+            <td>GET</td>
+            <td>/tests</td>
+            <td>view list of tests</td>
+        </tr>
+        <tr valign="top">
+            <td>GET</td>
+            <td>/tests?name={name}</td>
+            <td>view tests by {name}</td>
+        </tr>
+        <tr valign="top">
+            <td>PUT</td>
+            <td>/wordlist</td>
+            <td>replace existing word list with new one
+				<br>request body contains json(wordlist)</td>
+        </tr>
+        <tr valign="top">
+            <td>DELETE</td>
+            <td>/wordlist?
+				<br>words={words}
+				<br>&tests={tests}</td>
+            <td>delete from word list based on selection
+				<br>{words}=true|false
+				<br>{tests}=true|false</td>
+        </tr>
+    </table>
+</body>
+</html>
