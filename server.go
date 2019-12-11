@@ -2,8 +2,7 @@ package main
 
 import (
 	"os"
-"net/http"
-"strconv"
+	
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/static"
 	log "github.com/sirupsen/logrus"
@@ -30,7 +29,8 @@ func main() {
 
 	router.LoadHTMLGlob("public/*.html")
 	router.Use(static.Serve("/", static.LocalFile("./public", false)))
-	router.GET("/index", routers.Index)
+	//router.GET("/index", routers.Index)
+	router.GET("/extractor", routers.Extractor)
 	router.NoRoute(routers.NotFoundError)
 	router.GET("/health", routers.HealthGET)
 	

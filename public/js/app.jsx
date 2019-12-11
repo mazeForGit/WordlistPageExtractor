@@ -39,7 +39,9 @@ class App extends React.Component {
 	async startExecution() {
 		try {
 			console.log('startExecution ..')
-			const res = await fetch('http://localhost:8080/config?execution=true', {
+			var reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config?execution=true"
+			console.log('request to url = ' + reqUrl)
+			const res = await fetch(url, {
 				method: 'POST',
 				headers: {
 					'Accept': 'application/json',
@@ -54,7 +56,6 @@ class App extends React.Component {
 			this.setState({
 				requestexecution: true,
 			})
-			
 			//console.log(this.state)
 		} catch (e) {
 			console.log(e);
@@ -64,7 +65,9 @@ class App extends React.Component {
 		try {
 			if (this.state.requestexecution) {
 				console.log('readConfigData')
-				const res = await fetch('http://localhost:8080/config');
+				var reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config"
+				console.log('request to url = ' + reqUrl)
+				const res = await fetch(reqUrl);
 				const blocks = await res.json();
 				const NumberLinksFound = blocks.numberlinksfound;
 				const NumberLinksVisited = blocks.numberlinksvisited;

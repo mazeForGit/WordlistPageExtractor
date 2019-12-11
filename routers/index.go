@@ -5,8 +5,11 @@ import (
 	"net/http"
 )
 
-func Index(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", nil)
+//func Index(c *gin.Context) {
+//	c.HTML(http.StatusOK, "index.html", nil)
+//}
+func Extractor(c *gin.Context) {
+	c.HTML(http.StatusOK, "extractor.html", nil)
 }
 
 func NotFoundError(c *gin.Context) {
