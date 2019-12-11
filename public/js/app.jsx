@@ -25,8 +25,8 @@ class App extends React.Component {
 		this.startExecution();
 	}
 	componentDidMount() {
-		console.log('App componentDidMount')
-		this.interval = setInterval(() => this.readConfigData(), 5000);
+		//console.log('App componentDidMount')
+		this.interval = setInterval(() => this.readConfigData(), 3000);
 		//console.log("this.state.pagetoscan = " + this.state.pagescanned);
 	}
 	componentWillUnmount() {
@@ -34,7 +34,7 @@ class App extends React.Component {
 	}
 	async startExecution() {
 		try {
-			console.log('App startExecution ..')
+			//console.log('App startExecution ..')
 			var reqUrl = ""
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/config?execution=true";
@@ -66,7 +66,7 @@ class App extends React.Component {
 	async readConfigData() {
 		try {
 			if (this.state.requestexecution) {
-				console.log('App readConfigData')
+				//console.log('App readConfigData')
 				var reqUrl = ""
 				if (window.location.port == "") {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + "/config";
@@ -95,7 +95,7 @@ class App extends React.Component {
 					executionfinished: ExecutionFinished,
 				})
 				//console.log(this.state);
-				console.log("App this.state.pagescanned = " + this.state.pagescanned);
+				//console.log("App this.state.pagescanned = " + this.state.pagescanned);
 			}
 		} catch (e) {
 			console.log(e);
@@ -138,16 +138,16 @@ class Home extends React.Component {
 	
 	async serverRequest() {
 		try {
-			console.log('Home readData')
-			console.log("Home this.props.pagescanned = " + this.props.pagescanned);
+			//console.log('Home readData')
+			//console.log("Home this.props.pagescanned = " + this.props.pagescanned);
 			var reqUrl = ""
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/wordlist";
 			} else {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/wordlist";
 			}
-			console.log('Home request to url = ' + reqUrl);
-			console.log('Home read data ..');
+			//console.log('Home request to url = ' + reqUrl);
+			//console.log('Home read data ..');
 				
 			const res = await fetch(reqUrl);
 			const blocks = await res.json();
@@ -162,10 +162,7 @@ class Home extends React.Component {
 		}
 	}
 	componentDidMount() {
-		console.log("Home componentDidMount");
-		this.setState({
-            pagescanned: this.props.url,
-		});
+		//console.log("Home componentDidMount");
 		this.serverRequest();
 	}
 	render() {
