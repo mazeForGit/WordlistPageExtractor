@@ -29,7 +29,7 @@ func main() {
 
 	router.LoadHTMLGlob("public/*.html")
 	router.Use(static.Serve("/", static.LocalFile("./public", false)))
-	router.GET("/index", routers.Index)
+	router.GET("/content", routers.Index)
 	router.GET("/extractor", routers.Extractor)
 	router.NoRoute(routers.NotFoundError)
 	router.GET("/health", routers.HealthGET)

@@ -25,15 +25,16 @@ class App extends React.Component {
 		this.startExecution();
 	}
 	componentDidMount() {
-		console.log('componentDidMount')
+		console.log('App componentDidMount')
 		this.interval = setInterval(() => this.readConfigData(), 5000);
+		//console.log("this.state.pagetoscan = " + this.state.pagescanned);
 	}
 	componentWillUnmount() {
 		clearInterval(this.interval);
 	}
 	async startExecution() {
 		try {
-			console.log('startExecution ..')
+			console.log('App startExecution ..')
 			var reqUrl = ""
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/config?execution=true";
@@ -65,7 +66,7 @@ class App extends React.Component {
 	async readConfigData() {
 		try {
 			if (this.state.requestexecution) {
-				console.log('readConfigData')
+				console.log('App readConfigData')
 				var reqUrl = ""
 				if (window.location.port == "") {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + "/config";
@@ -94,6 +95,7 @@ class App extends React.Component {
 					executionfinished: ExecutionFinished,
 				})
 				//console.log(this.state);
+				console.log("App this.state.pagescanned = " + this.state.pagescanned);
 			}
 		} catch (e) {
 			console.log(e);
@@ -114,8 +116,7 @@ class App extends React.Component {
 					, started = { this.state.executionstarted.toString()  }
 					, finished = { this.state.executionfinished.toString()  }
 				</div>
-				
-				{(this.state.requestexecution && this.state.executionfinished) ? <Home url={this.state.pagescanned} /> : null}
+				{(this.state.requestexecution && this.state.executionfinished) ? <Home pagescanned={this.state.pagescanned} /> : null}
 		
 			</div>
 		);
@@ -125,7 +126,6 @@ class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			pagetoscan: "",
 			words: []
 		};
 
@@ -138,15 +138,16 @@ class Home extends React.Component {
 	
 	async serverRequest() {
 		try {
-			console.log('readData')
+			console.log('Home readData')
+			console.log("Home this.props.pagescanned = " + this.props.pagescanned);
 			var reqUrl = ""
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/wordlist";
 			} else {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/wordlist";
 			}
-			console.log('request to url = ' + reqUrl);
-			console.log('read data ..');
+			console.log('Home request to url = ' + reqUrl);
+			console.log('Home read data ..');
 				
 			const res = await fetch(reqUrl);
 			const blocks = await res.json();
@@ -161,17 +162,16 @@ class Home extends React.Component {
 		}
 	}
 	componentDidMount() {
-		//console.log("Home componentDidMount");
+		console.log("Home componentDidMount");
 		this.setState({
-            pagetoscan: this.props.url,
+            pagescanned: this.props.url,
 		});
-		//console.log(this.state);
 		this.serverRequest();
 	}
 	render() {
 		return (
 			<div className="container">
-				<p>list of words detected at url = {this.state.pagetoscan}</p>
+				<p>list of words detected at url = {this.props.pagescanned}</p>
 				<div className="row">
 					<div className="container">
 						{this.state.words.map(function(word, i) {
