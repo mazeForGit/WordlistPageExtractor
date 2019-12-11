@@ -48,14 +48,13 @@ func ExecuteLongRunningTaskOnRequest() {
 			GlobalConfig.RequestExecution = false
 			
 			d := GlobalConfig.PageToScan
-			last1  := d[len(d)-1:]
+			last1 := d[len(d)-1:]
 			if (last1 == "/") {
 				d = d[:len(d)-1]
 				GlobalConfig.PageToScan = d
 			}
 			d = strings.Replace(d, "https://", "", 1)
 			d = strings.Replace(d, "http://", "", 1)
-			
 			GlobalConfig.DomainsAllowed = d
 			GlobalConfig.NumberLinksFound = 0
 			GlobalConfig.NumberLinksVisited = 0
@@ -63,7 +62,7 @@ func ExecuteLongRunningTaskOnRequest() {
 			GlobalConfig.ExecutionFinished = false
 			GlobalConfig.WordsScanned = 0
 			
-			fmt.Println(GlobalConfig)
+			//fmt.Println(GlobalConfig)
 			
 			readSite()
 			
