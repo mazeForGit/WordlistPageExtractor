@@ -6,7 +6,6 @@ class App extends React.Component {
 			time: Date.now(),
 			requestexecution: true,
 			pagetoscan: "enter url",
-			pagescanned: "",
 			numberlinksfound: 0,
 			numberlinksvisited: 0,
 			wordsscanned: 0,
@@ -20,7 +19,10 @@ class App extends React.Component {
 		this.setState({pagetoscan: event.target.value});
 	}
 	handleRun(event) {
-		//console.log('.. startExecution');
+		//alert('requested url = ' + this.state.pagetoscan);
+		//event.preventDefault();
+		//this.sendConfigData();
+		console.log('.. startExecution')
 		this.state.requestexecution = true;
 		this.startExecution();
 	}
@@ -40,8 +42,8 @@ class App extends React.Component {
 			} else {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config?execution=true";
 			}
-			//console.log('request to url = ' + reqUrl);
-			//console.log('post data ..');
+			console.log('request to url = ' + reqUrl);
+			console.log('post data ..');
 			const res = await fetch(reqUrl, {
 				method: 'POST',
 				headers: {
@@ -53,11 +55,11 @@ class App extends React.Component {
 				})
 			});
 			const blocks = await res.json();
-			//console.log(blocks);
+			//console.log(blocks)
 			this.setState({
 				requestexecution: true,
 			})
-			//console.log(this.state);
+			//console.log(this.state)
 		} catch (e) {
 			console.log(e);
 		}
@@ -72,28 +74,26 @@ class App extends React.Component {
 				} else {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config";
 				}
-				//console.log('request to url = ' + reqUrl);
-				//console.log('read data ..');
+				console.log('request to url = ' + reqUrl);
+				console.log('read data ..')
 				const res = await fetch(reqUrl);
 				const blocks = await res.json();
-				const PageScanned = blocks.pagetoscan;
 				const NumberLinksFound = blocks.numberlinksfound;
 				const NumberLinksVisited = blocks.numberlinksvisited;
 				const WordsScanned = blocks.wordsscanned;
 				const ExecutionStarted = blocks.executionstarted;
 				const ExecutionFinished = blocks.executionfinished;
-				//console.log(blocks);
+				console.log(blocks)
 
 				this.setState({
 					time: Date.now(),
-					pagescanned: PageScanned,
 					numberlinksfound: NumberLinksFound,
 					numberlinksvisited: NumberLinksVisited,
 					wordsscanned: WordsScanned,
 					executionstarted: ExecutionStarted,
 					executionfinished: ExecutionFinished,
 				})
-				//console.log(this.state);
+				console.log(this.state)
 			}
 		} catch (e) {
 			console.log(e);
@@ -115,7 +115,7 @@ class App extends React.Component {
 					, finished = { this.state.executionfinished.toString()  }
 				</div>
 				
-				{(this.state.requestexecution && this.state.executionfinished) ? <Home url={this.state.pagescanned} /> : null}
+				{(this.state.requestexecution && this.state.executionfinished) ? <Home /> : null}
 		
 			</div>
 		);
@@ -125,7 +125,6 @@ class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			pagetoscan: "",
 			words: []
 		};
 
@@ -135,43 +134,27 @@ class Home extends React.Component {
 	logout() {
 		location.reload();
 	}
-	
-	async serverRequest() {
-		try {
-			console.log('readData')
-			var reqUrl = ""
-			if (window.location.port == "") {
-				reqUrl = window.location.protocol + "//" + window.location.hostname + "/wordlist";
-			} else {
-				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/wordlist";
-			}
-			console.log('request to url = ' + reqUrl);
-			console.log('read data ..');
-				
-			const res = await fetch(reqUrl);
-			const blocks = await res.json();
-			//console.log(blocks);
-			
+	serverRequest() {
+		$.get("http://localhost:8080/wordlist", res => {
 			this.setState({
-				words: blocks,
-			})
-			//console.log(this.state);
-		} catch (e) {
-			console.log(e);
-		}
+			words: res
+		});
+		});
 	}
 	componentDidMount() {
-		//console.log("Home componentDidMount");
-		this.setState({
-            pagetoscan: this.props.url,
-		});
-		//console.log(this.state);
 		this.serverRequest();
+		console.log(this.state)
 	}
 	render() {
 		return (
 			<div className="container">
-				<p>list of words detected at url = {this.state.pagetoscan}</p>
+				<br />
+				<span className="pull-right">
+					<a onClick={this.logout}>Log out</a>
+				</span>
+			
+				
+				<p>list of words detected</p>
 				<div className="row">
 					<div className="container">
 						{this.state.words.map(function(word, i) {
@@ -192,7 +175,7 @@ class Word extends React.Component {
 	}
 	render() {
 		return (
-			<div className="col-xs-2">
+			<div className="col-xs-3">
 				<div className="panel panel-default">
 					<div className="panel-heading">{this.props.word.name}</div>
 					<div className="panel-body">{this.props.word.occurance}</div>
