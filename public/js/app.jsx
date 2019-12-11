@@ -36,9 +36,15 @@ class App extends React.Component {
 	async startExecution() {
 		try {
 			console.log('startExecution ..')
-			var reqUrl = window.location.protocol + "//" + window.location.hostname + "/config?execution=true"
-			console.log('request to url = ' + reqUrl)
-			const res = await fetch(url, {
+			var reqUrl = ""
+			if (window.location.port == "") {
+				reqUrl = window.location.protocol + "//" + window.location.hostname + "/config?execution=true";
+			} else {
+				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config?execution=true";
+			}
+			console.log('request to url = ' + reqUrl);
+			console.log('post data ..');
+			const res = await fetch(reqUrl, {
 				method: 'POST',
 				headers: {
 					'Accept': 'application/json',
@@ -62,8 +68,14 @@ class App extends React.Component {
 		try {
 			if (this.state.requestexecution) {
 				console.log('readConfigData')
-				var reqUrl = window.location.protocol + "//" + window.location.hostname + "/config"
-				console.log('request to url = ' + reqUrl)
+				var reqUrl = ""
+				if (window.location.port == "") {
+					reqUrl = window.location.protocol + "//" + window.location.hostname + "/config";
+				} else {
+					reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config";
+				}
+				console.log('request to url = ' + reqUrl);
+				console.log('read data ..')
 				const res = await fetch(reqUrl);
 				const blocks = await res.json();
 				const NumberLinksFound = blocks.numberlinksfound;
