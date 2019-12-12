@@ -110,7 +110,7 @@ class App extends React.Component {
 	}
 	render() {
 		return(
-			<div className="container">
+			<div className="container-fluid">
 				<div className="container">
 					<p></p>
 					extract from url = &nbsp;
