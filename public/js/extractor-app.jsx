@@ -66,6 +66,8 @@ class App extends React.Component {
 	}
 	async readConfigData() {
 		try {
+			console.log("this.state.requestexecution = " + this.state.requestexecution);
+			console.log("this.state.executionstarted = " + this.state.executionstarted);
 			if (this.state.requestexecution || this.state.executionstarted) {
 				console.log('App readConfigData')
 				var reqUrl = ""
@@ -74,18 +76,18 @@ class App extends React.Component {
 				} else {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/status";
 				}
-				//console.log('request to url = ' + reqUrl);
-				//console.log('read data ..');
+				console.log("request to url = " + reqUrl);
+				console.log("read data ..");
 				const res = await fetch(reqUrl);
 				const blocks = await res.json();
 				const PageScanned = blocks.pagetoscan;
 				const NumberLinksFound = blocks.numberlinksfound;
 				const NumberLinksVisited = blocks.numberlinksvisited;
 				const WordsScanned = blocks.wordsscanned;
-				const RequestExecution = blocks.requestexecution;
-				const ExecutionStarted = blocks.executionstarted;
-				const ExecutionFinished = blocks.executionfinished;
-				//console.log(blocks);
+				const RequestExecution = (/true/i).test(blocks.requestexecution);
+				const ExecutionStarted = (/true/i).test(blocks.executionstarted);
+				const ExecutionFinished = (/true/i).test(blocks.executionfinished);
+				console.log(blocks);
 
 				this.setState({
 					time: Date.now(),
@@ -98,7 +100,7 @@ class App extends React.Component {
 					executionfinished: ExecutionFinished,
 				})
 				console.log(this.state);
-				//console.log("App this.state.pagescanned = " + this.state.pagescanned);
+				console.log("App this.state.pagescanned = " + this.state.pagescanned);
 			}
 		} catch (e) {
 			console.log(e);
