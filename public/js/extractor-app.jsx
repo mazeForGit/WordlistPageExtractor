@@ -39,7 +39,7 @@ class App extends React.Component {
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/config?execution=true";
 			} else {
-				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config?execution=true";
+				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/status";
 			}
 			//console.log('request to url = ' + reqUrl);
 			//console.log('post data ..');
@@ -71,7 +71,7 @@ class App extends React.Component {
 				if (window.location.port == "") {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + "/config";
 				} else {
-					reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/config";
+					reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/status";
 				}
 				//console.log('request to url = ' + reqUrl);
 				//console.log('read data ..');
@@ -105,6 +105,7 @@ class App extends React.Component {
 		return(
 			<div className="container">
 				<div className="container">
+					<p></p>
 					extract from url = &nbsp;
 					<input type="text" size="40" value={this.state.pagetoscan} onChange={this.handleChange} />
 					<button onClick={this.handleRun}>run</button>
@@ -144,7 +145,7 @@ class Home extends React.Component {
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/wordlist";
 			} else {
-				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/wordlist";
+				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/words";
 			}
 			//console.log('Home request to url = ' + reqUrl);
 			//console.log('Home read data ..');

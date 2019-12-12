@@ -11,7 +11,9 @@ func Index(c *gin.Context) {
 func Extractor(c *gin.Context) {
 	c.HTML(http.StatusOK, "extractor.html", nil)
 }
-
+func Voter(c *gin.Context) {
+	c.HTML(http.StatusOK, "voter01.html", nil)
+}
 func NotFoundError(c *gin.Context) {
 	c.HTML(http.StatusOK, "404.html", nil)
 }

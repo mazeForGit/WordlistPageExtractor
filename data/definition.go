@@ -5,7 +5,7 @@ import (
 	//"fmt"
 )
 
-type Status struct {
+type ResponseStatus struct {
 	Code int    `json:"code"`
 	Text string `json:"text"`
 }
@@ -21,7 +21,6 @@ type Word struct {
 	New bool	`json:"new"`
 	Tests []Test	`json:"tests"`
 }
-
 type WordList struct {
     Type  string	`json:"type"`
     LastUsedId  int	`json:"lastusedid"`
@@ -29,10 +28,14 @@ type WordList struct {
 	Tests []Test	`json:"tests"`
 	Words []Word	`json:"words"`
 }
-
 type Config struct {
-    RequestExecution  bool	`json:"requestexecution"`
+	LastUsedSID  int	`json:"lastusedsid"`
+	CountUsedSID  int	`json:"countusedsid"`
     WordListUrl  string	`json:"wordlisturl"`
+}
+type Status struct {
+    Count int `json:"sessioncount"`
+    RequestExecution bool `json:"requestexecution"`
 	PageToScan string `json:"pagetoscan"`
 	DomainsAllowed string `json:"domainsallowed"`
 	NumberLinksFound int `json:"numberlinksfound"`
@@ -41,15 +44,18 @@ type Config struct {
 	ExecutionFinished bool `json:"executionfinished"`
 	WordsScanned int `json:"wordsscanned"`
 }
-
-func DeleteWordsWithOccuranceZero(wl WordList) (WordList) {
-    var newwl WordList
-	for i := 0; i < len(wl.Words); i++ {
-		if wl.Words[i].Occurance > 0 {
-			wl.Words[i].Tests = nil
-			newwl.Words = append(newwl.Words, wl.Words[i])
-			newwl.Count++
+type SessionData struct {
+    SessionID int `json:"sid"`
+    SessionStatus Status `json:"sessionstatus"`
+	SessionWords []Word `json:"words"`
+}
+func DeleteWordsWithOccuranceZero(w []Word) ([]Word) {
+    var neww []Word
+	for i := 0; i < len(w); i++ {
+		if w[i].Occurance > 0 {
+			w[i].Tests = nil
+			neww = append(neww, w[i])
 		}
 	}
-    return newwl
+    return neww
 }
