@@ -20,7 +20,7 @@ class App extends React.Component {
 		this.setState({pagetoscan: event.target.value});
 	}
 	handleRun(event) {
-		//console.log('.. startExecution');
+		//console.log('Button click .. startExecution');
 		this.state.requestexecution = true;
 		this.startExecution();
 	}
@@ -34,7 +34,7 @@ class App extends React.Component {
 	}
 	async startExecution() {
 		try {
-			//console.log('App startExecution ..')
+			console.log('App startExecution ..')
 			var reqUrl = ""
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/config?execution=true";
@@ -66,8 +66,8 @@ class App extends React.Component {
 	}
 	async readConfigData() {
 		try {
-			console.log("this.state.requestexecution = " + this.state.requestexecution);
-			console.log("this.state.executionstarted = " + this.state.executionstarted);
+			//console.log("this.state.requestexecution = " + this.state.requestexecution);
+			//console.log("this.state.executionstarted = " + this.state.executionstarted);
 			if (this.state.requestexecution || this.state.executionstarted) {
 				console.log('App readConfigData')
 				var reqUrl = ""
@@ -76,8 +76,8 @@ class App extends React.Component {
 				} else {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/status";
 				}
-				console.log("request to url = " + reqUrl);
-				console.log("read data ..");
+				//console.log("request to url = " + reqUrl);
+				//console.log("read data ..");
 				const res = await fetch(reqUrl);
 				const blocks = await res.json();
 				const PageScanned = blocks.pagetoscan;
@@ -86,7 +86,7 @@ class App extends React.Component {
 				const WordsScanned = blocks.wordsscanned;
 				const ExecutionStarted = (/true/i).test(blocks.executionstarted);
 				const ExecutionFinished = (/true/i).test(blocks.executionfinished);
-				console.log(blocks);
+				//console.log(blocks);
 
 				this.setState({
 					time: Date.now(),
@@ -94,15 +94,14 @@ class App extends React.Component {
 					numberlinksfound: NumberLinksFound,
 					numberlinksvisited: NumberLinksVisited,
 					wordsscanned: WordsScanned,
-					requestexecution: RequestExecution,
 					executionstarted: ExecutionStarted,
 					executionfinished: ExecutionFinished,
 				})
 				if (this.setState.executionfinished) {
 					this.state.requestexecution = false
 				}
-				console.log(this.state);
-				console.log("App this.state.pagescanned = " + this.state.pagescanned);
+				//console.log(this.state);
+				//console.log("App this.state.pagescanned = " + this.state.pagescanned);
 			}
 		} catch (e) {
 			console.log(e);
