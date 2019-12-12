@@ -84,7 +84,7 @@ func ReadGlobalWordlist() error {
 func ExecuteLongRunningTaskOnRequest(sid int) {
 	fmt.Println("ExecuteLongRunningTaskOnRequest sid = " + strconv.Itoa(sid))
     sData := GetSessionData(sid)
-	fmt.Println(sData.SessionStatus)
+	//fmt.Println(sData.SessionStatus)
 	
 		if sData.SessionStatus.RequestExecution && !sData.SessionStatus.ExecutionStarted {
 			
@@ -110,6 +110,7 @@ func ExecuteLongRunningTaskOnRequest(sid int) {
 			
 			Crawler(sid)
 			
+			fmt.Println("have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
 			sData.SessionWords = DeleteWordsWithOccuranceZero(sData.SessionWords)
 			fmt.Println("have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
 			sort.Sort(SorterWordByOccurance(sData.SessionWords))
@@ -175,7 +176,7 @@ func Crawler(sid int) {
 		}
 	})
 	
-	fmt.Println("start crawler")
+	//fmt.Println("start crawler")
 	c.Visit(sData.SessionStatus.PageToScan)
 }
 

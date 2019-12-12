@@ -101,7 +101,7 @@ class App extends React.Component {
 				if (this.setState.executionfinished) {
 					this.state.requestexecution = false
 				}
-				console.log(this.state);
+				//console.log(this.state);
 				//console.log("App this.state.pagescanned = " + this.state.pagescanned);
 			}
 		} catch (e) {
@@ -196,10 +196,10 @@ class Home extends React.Component {
 		return (
 			<div className="container">
 				<p>list of words detected at url = {this.props.pagescanned}</p>
-				<div className="row">
-					<div className="container">
+				<div className="container">
+					<div class="card-columns">
 						{this.state.words.map(function(word, i) {
-						return <Word key={i} word={word} />;
+							return <Word key={i} word={word} />;
 						})}
 					</div>
 				</div>
@@ -216,16 +216,12 @@ class Word extends React.Component {
 	}
 	render() {
 		return (
-			<div class="container">
-				<div class="card-columns">
-					<div class="card">
-					  <div class="card-header">
-						{this.props.word.occurance}
-					  </div>
-					  <div class="card-body">
-						{this.props.word.name}
-					  </div>
-					</div>
+			<div class="card">
+				<div class="card-header">
+					{this.props.word.occurance}
+				</div>
+				<div class="card-body">
+					{this.props.word.name}
 				</div>
 			</div>
 		)
