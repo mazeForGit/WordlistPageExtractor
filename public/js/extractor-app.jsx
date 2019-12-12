@@ -84,7 +84,6 @@ class App extends React.Component {
 				const NumberLinksFound = blocks.numberlinksfound;
 				const NumberLinksVisited = blocks.numberlinksvisited;
 				const WordsScanned = blocks.wordsscanned;
-				const RequestExecution = (/true/i).test(blocks.requestexecution);
 				const ExecutionStarted = (/true/i).test(blocks.executionstarted);
 				const ExecutionFinished = (/true/i).test(blocks.executionfinished);
 				console.log(blocks);
@@ -99,6 +98,9 @@ class App extends React.Component {
 					executionstarted: ExecutionStarted,
 					executionfinished: ExecutionFinished,
 				})
+				if (this.setState.executionfinished) {
+					this.state.requestexecution = false
+				}
 				console.log(this.state);
 				console.log("App this.state.pagescanned = " + this.state.pagescanned);
 			}
