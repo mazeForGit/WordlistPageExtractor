@@ -37,7 +37,7 @@ class App extends React.Component {
 			console.log('App startExecution ..')
 			var reqUrl = ""
 			if (window.location.port == "") {
-				reqUrl = window.location.protocol + "//" + window.location.hostname + "/config?execution=true";
+				reqUrl = window.location.protocol + "//" + window.location.hostname + "/status";
 			} else {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/status";
 			}
@@ -73,7 +73,7 @@ class App extends React.Component {
 				console.log('App readConfigData')
 				var reqUrl = ""
 				if (window.location.port == "") {
-					reqUrl = window.location.protocol + "//" + window.location.hostname + "/config";
+					reqUrl = window.location.protocol + "//" + window.location.hostname + "/status";
 				} else {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/status";
 				}
