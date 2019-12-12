@@ -82,8 +82,9 @@ func ReadGlobalWordlist() error {
 }
 
 func ExecuteLongRunningTaskOnRequest(sid int) {
-	//fmt.Println("ExecuteLongRunningTaskOnRequest sid = " + strconv.Itoa(sid))
+	fmt.Println("ExecuteLongRunningTaskOnRequest sid = " + strconv.Itoa(sid))
     sData := GetSessionData(sid)
+	fmt.Println(sData.SessionStatus)
 	
 		if sData.SessionStatus.RequestExecution && !sData.SessionStatus.ExecutionStarted {
 			

@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/sessions"
@@ -25,6 +26,10 @@ func StatusGET(c *gin.Context) {
 	
 	sData := data.GetSessionData(sid)
 	sData.SessionStatus.Count++
+	
+	fmt.Println("StatusGET")
+	fmt.Println(sData.SessionStatus)
+	
 	c.JSON(200, sData.SessionStatus)
 }
 func StatusPOST(c *gin.Context) {
@@ -44,6 +49,9 @@ func StatusPOST(c *gin.Context) {
 		
 	sData := data.GetSessionData(sid)
 	sData.SessionStatus.Count++
+	
+	fmt.Println("StatusPOST")
+	fmt.Println(sData.SessionStatus)
 	
 	var s data.ResponseStatus
 	err := c.BindJSON(&sData.SessionStatus)

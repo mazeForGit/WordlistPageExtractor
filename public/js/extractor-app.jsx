@@ -51,6 +51,7 @@ class App extends React.Component {
 				},
 				body: JSON.stringify({
 					requestexecution: true,
+					executionstarted: false,
 					pagetoscan: this.state.pagetoscan,
 				})
 			});
