@@ -100,7 +100,7 @@ class App extends React.Component {
 				if (this.setState.executionfinished) {
 					this.state.requestexecution = false
 				}
-				//console.log(this.state);
+				console.log(this.state);
 				//console.log("App this.state.pagescanned = " + this.state.pagescanned);
 			}
 		} catch (e) {

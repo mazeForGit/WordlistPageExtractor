@@ -119,7 +119,7 @@ func ExecuteLongRunningTaskOnRequest(sid int) {
 		}
 }
 func Crawler(sid int) {
-	//fmt.Println("Crawler sid = " + strconv.Itoa(sid))
+	fmt.Println("Crawler sid = " + strconv.Itoa(sid))
 	sData := GetSessionData(sid)
 	fmt.Println("mainPage = " + sData.SessionStatus.PageToScan + ", allowedDomains = " + sData.SessionStatus.DomainsAllowed)
 	
