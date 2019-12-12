@@ -10,7 +10,7 @@ class App extends React.Component {
 			numberlinksfound: 0,
 			numberlinksvisited: 0,
 			wordsscanned: 0,
-			executionstarted: true,
+			executionstarted: false,
 			executionfinished: false
 		};
 		this.handleChange = this.handleChange.bind(this);
@@ -50,6 +50,7 @@ class App extends React.Component {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
+					requestexecution: true,
 					pagetoscan: this.state.pagetoscan,
 				})
 			});
@@ -65,8 +66,8 @@ class App extends React.Component {
 	}
 	async readConfigData() {
 		try {
-			if (this.state.requestexecution) {
-				//console.log('App readConfigData')
+			if (this.state.requestexecution || this.state.executionstarted) {
+				console.log('App readConfigData')
 				var reqUrl = ""
 				if (window.location.port == "") {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + "/config";
@@ -81,6 +82,7 @@ class App extends React.Component {
 				const NumberLinksFound = blocks.numberlinksfound;
 				const NumberLinksVisited = blocks.numberlinksvisited;
 				const WordsScanned = blocks.wordsscanned;
+				const RequestExecution = blocks.requestexecution;
 				const ExecutionStarted = blocks.executionstarted;
 				const ExecutionFinished = blocks.executionfinished;
 				//console.log(blocks);
@@ -91,10 +93,11 @@ class App extends React.Component {
 					numberlinksfound: NumberLinksFound,
 					numberlinksvisited: NumberLinksVisited,
 					wordsscanned: WordsScanned,
+					requestexecution: RequestExecution,
 					executionstarted: ExecutionStarted,
 					executionfinished: ExecutionFinished,
 				})
-				//console.log(this.state);
+				console.log(this.state);
 				//console.log("App this.state.pagescanned = " + this.state.pagescanned);
 			}
 		} catch (e) {
@@ -108,7 +111,18 @@ class App extends React.Component {
 					<p></p>
 					extract from url = &nbsp;
 					<input type="text" size="40" value={this.state.pagetoscan} onChange={this.handleChange} />
-					<button onClick={this.handleRun}>run</button>
+					&nbsp;&nbsp;
+					
+
+				{(this.state.executionstarted && !this.state.executionfinished) ? 
+					<button class="btn btn-primary  btn-sm" type="button" enabled onClick={this.handleRun}>
+					  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing
+					</button>
+				: 	<button class="btn btn-primary  btn-sm" type="button" enabled onClick={this.handleRun}>
+						Start
+					</button>
+				}
+
 				</div>	
 				<div className="container"> 
 					progress from backend : links found = { this.state.numberlinksfound }
@@ -117,7 +131,7 @@ class App extends React.Component {
 					, started = { this.state.executionstarted.toString()  }
 					, finished = { this.state.executionfinished.toString()  }
 				</div>
-				{(this.state.requestexecution && this.state.executionfinished) ? <Home pagescanned={this.state.pagescanned} /> : null}
+				{(this.state.executionrequested || this.state.executionfinished) ? <Home pagescanned={this.state.pagescanned} /> : null}
 		
 			</div>
 		);
@@ -127,7 +141,7 @@ class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			words: []
+			words: [{"id": 0, "name": "no word present", "occurance": 0, "new": false, "tests": null},]
 		};
 
 		this.serverRequest = this.serverRequest.bind(this);
@@ -139,7 +153,7 @@ class Home extends React.Component {
 	
 	async serverRequest() {
 		try {
-			//console.log('Home readData')
+			console.log('Home readData')
 			//console.log("Home this.props.pagescanned = " + this.props.pagescanned);
 			var reqUrl = ""
 			if (window.location.port == "") {
@@ -154,12 +168,20 @@ class Home extends React.Component {
 			const blocks = await res.json();
 			//console.log(blocks);
 			
-			this.setState({
-				words: blocks,
-			})
+			if (blocks != null) {
+				//console.log("blocks != null");
+				this.setState({
+					words: blocks,
+				})
+			} else {
+				//console.log("blocks == null");
+				var a = new Array()
+				a = [{"id": 0, "name": "no mapping words found", "occurance": 0, "new": false, "tests": null},]
+				this.setState.words = a
+			}
 			//console.log(this.state);
 		} catch (e) {
-			console.log(e);
+			//console.log(e);
 		}
 	}
 	componentDidMount() {
@@ -190,10 +212,16 @@ class Word extends React.Component {
 	}
 	render() {
 		return (
-			<div className="col-xs-2">
-				<div className="panel panel-default">
-					<div className="panel-heading">{this.props.word.name}</div>
-					<div className="panel-body">{this.props.word.occurance}</div>
+			<div class="container">
+				<div class="card-columns">
+					<div class="card">
+					  <div class="card-header">
+						{this.props.word.occurance}
+					  </div>
+					  <div class="card-body">
+						{this.props.word.name}
+					  </div>
+					</div>
 				</div>
 			</div>
 		)
