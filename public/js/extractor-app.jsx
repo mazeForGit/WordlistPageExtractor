@@ -197,25 +197,6 @@ class Home extends React.Component {
 			<div className="container">
 				<p>list of words detected at url = {this.props.pagescanned}</p>
 				
-				<ul class="nav nav-tabs">
-				  <li class="nav-item">
-					<a class="nav-link active" href="#">Active</a>
-					<div>askldjflsdkjfsdklfjdlskfjkljf asöldkfdlaskfldkjfadlkfjs kljasfkjasdfkdjfkjhasdkfhdjkhfjksdhfdj</div>
-				  </li>
-				  <li class="nav-item">
-					<a class="nav-link" href="#">Link</a>
-					<div>askldjflsdkjfsdklfjdlskfjkljf asöldkfdlaskfldkjfadlkfjs kljasfkjasdfkdjfkjhasdkfhdjkhfjksdhfdj</div>
-				  </li>
-				  <li class="nav-item">
-					<a class="nav-link" href="#">Link</a>
-					<div>askldjflsdkjfsdklfjdlskfjkljf asöldkfdlaskfldkjfadlkfjs kljasfkjasdfkdjfkjhasdkfhdjkhfjksdhfdj</div>
-				  </li>
-				  <li class="nav-item">
-					<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-					<div>askldjflsdkjfsdklfjdlskfjkljf asöldkfdlaskfldkjfadlkfjs kljasfkjasdfkdjfkjhasdkfhdjkhfjksdhfdj</div>
-				  </li>
-				</ul>
-				
 				<div className="container">
 					<div class="card-columns">
 						{this.state.words.map(function(word, i) {

@@ -59,3 +59,11 @@ func DeleteWordsWithOccuranceZero(w []Word) ([]Word) {
 	}
     return neww
 }
+func CopyWords(w []Word) ([]Word) {
+    var neww []Word
+	for i := 0; i < len(w); i++ {
+		w[i].Tests = nil
+		neww = append(neww, w[i])
+	}
+    return neww
+}

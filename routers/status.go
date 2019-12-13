@@ -54,9 +54,9 @@ func StatusPOST(c *gin.Context) {
 	}
 	
 	sData.SessionStatus.RequestExecution = true
-	sWords := data.GlobalWordList.Words
-	sData.SessionWords = sWords
-
+	sData.SessionWords = data.CopyWords(data.GlobalWordList.Words)
+	//data.SetSessionData(sData)
+	
 	go data.ExecuteLongRunningTaskOnRequest(sid)
 
 	s = data.ResponseStatus{Code: 200, Text: "start execution"}

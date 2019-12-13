@@ -52,6 +52,15 @@ func GetSessionData(sid int) *SessionData {
 	GlobalSessionData = append(GlobalSessionData, sData)
     return GetSessionData(sid)
 }
+func SetSessionData(sData SessionData) {
+	//fmt.Println("SetSessionData sid=" + strconv.Itoa(sData.SessionID))
+	
+	for i := 0; i < len(GlobalSessionData); i++ {
+		if GlobalSessionData[i].SessionID == sData.SessionID {
+			GlobalSessionData[i] = sData
+		}
+	}
+}
 
 func ReadGlobalWordlist() error {
 	fmt.Println("readGlobalWordlist")
@@ -108,16 +117,18 @@ func ExecuteLongRunningTaskOnRequest(sid int) {
 			
 			//fmt.Println(sData)
 			
+			fmt.Println("before: have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
+			
 			Crawler(sid)
 			
-			fmt.Println("have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
 			sData.SessionWords = DeleteWordsWithOccuranceZero(sData.SessionWords)
-			fmt.Println("have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
+			fmt.Println("after: have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
 			sort.Sort(SorterWordByOccurance(sData.SessionWords))
 			//fmt.Println(sData.SessionWords)
 			
 			sData.SessionStatus.ExecutionStarted = false
 			sData.SessionStatus.ExecutionFinished = true
+			
 		}
 }
 func Crawler(sid int) {
