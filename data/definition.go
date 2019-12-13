@@ -49,21 +49,23 @@ type SessionData struct {
     SessionStatus Status `json:"sessionstatus"`
 	SessionWords []Word `json:"words"`
 }
-func DeleteWordsWithOccuranceZero(w []Word) ([]Word) {
-    var neww []Word
-	for i := 0; i < len(w); i++ {
-		if w[i].Occurance > 0 {
-			w[i].Tests = nil
-			neww = append(neww, w[i])
+func DeleteWordsWithOccuranceZero(wl []Word) ([]Word) {
+    var wlNew []Word
+	for i := 0; i < len(wl); i++ {
+		if wl[i].Occurance > 0 {
+			wl[i].Tests = nil
+			wlNew = append(wlNew, wl[i])
 		}
 	}
-    return neww
+    return wlNew
 }
-func CopyWords(w []Word) ([]Word) {
-    var neww []Word
-	for i := 0; i < len(w); i++ {
-		w[i].Tests = nil
-		neww = append(neww, w[i])
+func CopyWords(wl []Word) ([]Word) {
+    var wlNew []Word
+	for i := 0; i < len(wl); i++ {
+		var wNew Word
+		wNew.Tests = wl[i].Tests
+		wNew.Occurance = wl[i].Occurance
+		wlNew = append(wlNew, wNew)
 	}
-    return neww
+    return wlNew
 }
