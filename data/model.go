@@ -121,8 +121,9 @@ func ExecuteLongRunningTaskOnRequest(sid int) {
 			
 			Crawler(sid)
 			
-			sData.SessionWords = DeleteWordsWithOccuranceZero(sData.SessionWords)
 			fmt.Println("after: have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
+			sData.SessionWords = DeleteWordsWithOccuranceZero(sData.SessionWords)
+			fmt.Println("after delete: have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
 			sort.Sort(SorterWordByOccurance(sData.SessionWords))
 			//fmt.Println(sData.SessionWords)
 			

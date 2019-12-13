@@ -64,6 +64,7 @@ func CopyWords(wl []Word) ([]Word) {
 	for i := 0; i < len(wl); i++ {
 		var wNew Word
 		wNew.Tests = wl[i].Tests
+		wNew.Name = wl[i].Name
 		wNew.Occurance = wl[i].Occurance
 		wlNew = append(wlNew, wNew)
 	}
