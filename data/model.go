@@ -107,6 +107,7 @@ func StoreWordlistAtRemote(wl WordList) error {
 	
     requestUrl = GlobalConfig.WordListStorageUrl + "/wordlist"
     fmt.Println("connect to wordliststorage = " + requestUrl)
+    //fmt.Println(wl)
 	
     payload, err := json.Marshal(wl)
 	if err != nil {
@@ -150,6 +151,7 @@ func ExecuteLongRunningTaskOnRequest(sid int) {
 			// just run once
 			sData.Session.RequestExecution = false
 			
+			sData.Session.PageToScan = strings.TrimSpace(sData.Session.PageToScan)
 			d := sData.Session.PageToScan
 			last1 := d[len(d)-1:]
 			if (last1 == "/") {
@@ -181,14 +183,7 @@ func ExecuteLongRunningTaskOnRequest(sid int) {
 			sData.Session.ExecutionFinished = true
 			
 			if len(sData.Words) > 0 && GlobalConfig.WordListStorageUrl != "" {
-				var wl WordList
-				wl.Session.SessionID = sData.Session.SessionID
-				wl.Session.PageToScan = sData.Session.PageToScan
-				wl.Session.NumberLinksFound = sData.Session.NumberLinksFound
-				wl.Session.NumberLinksVisited = sData.Session.NumberLinksVisited
-				wl.Session.WordsScanned = sData.Session.WordsScanned
-				wl.Words = sData.Words
-				StoreWordlistAtRemote(wl)
+				StoreWordlistAtRemote(*sData)
 			}
 		}
 }

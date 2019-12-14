@@ -41,7 +41,6 @@ func main() {
 	// global config
 	router.GET("/config", routers.ConfigGET)
 	router.POST("/config", routers.ConfigPOST)
-	router.PUT("/config", routers.ConfigPUT)
 	router.GET("/wordlist", routers.WordListGET)
 	
 	// session based
