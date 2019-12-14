@@ -14,18 +14,17 @@ func StatusGET(c *gin.Context) {
 	var sid int
 	v := session.Get("sid")
 	if v == nil {
-		data.GlobalConfig.LastUsedSID++
-		sid = data.GlobalConfig.LastUsedSID
+		sid = data.GetNewSessionID()
 		session.Set("sid", sid)
 		session.Save()
 	} else {
 		sid = v.(int)
 	}
 	
-	sData := data.GetSessionData(sid)
-	sData.SessionStatus.Count++
+	sData := data.GetWordListForSession(sid)
+	sData.Session.Count++
 	
-	c.JSON(200, sData.SessionStatus)
+	c.JSON(200, sData.Session)
 }
 func StatusPOST(c *gin.Context) {
 
@@ -34,27 +33,27 @@ func StatusPOST(c *gin.Context) {
 	var sid int
 	v := session.Get("sid")
 	if v == nil {
-		data.GlobalConfig.LastUsedSID++
-		sid = data.GlobalConfig.LastUsedSID
+		sid = data.GetNewSessionID()
 		session.Set("sid", sid)
 		session.Save()
 	} else {
 		sid = v.(int)
 	}
 		
-	sData := data.GetSessionData(sid)
-	sData.SessionStatus.Count++
+	sData := data.GetWordListForSession(sid)
+	sData.Session.Count++
 	
 	var s data.ResponseStatus
-	err := c.BindJSON(&sData.SessionStatus)
+	err := c.BindJSON(&sData.Session)
+	
 	if err != nil {
 		s = data.ResponseStatus{Code: 422, Text: "wrong request"}
 		c.JSON(200, s)
 		return
 	}
 	
-	sData.SessionStatus.RequestExecution = true
-	sData.SessionWords = data.CopyWords(data.GlobalWordList.Words)
+	sData.Session.RequestExecution = true
+	sData.Words = data.CopyWords(data.GlobalWordList.Words)
 	//data.SetSessionData(sData)
 	
 	go data.ExecuteLongRunningTaskOnRequest(sid)

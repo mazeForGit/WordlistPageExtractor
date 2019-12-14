@@ -14,17 +14,16 @@ func WordsGET(c *gin.Context) {
 	var sid int
 	v := session.Get("sid")
 	if v == nil {
-		data.GlobalConfig.LastUsedSID++
-		sid = data.GlobalConfig.LastUsedSID
+		sid = data.GetNewSessionID()
 		session.Set("sid", sid)
 		session.Save()
 	} else {
 		sid = v.(int)
 	}
 		
-	sData := data.GetSessionData(sid)
-	sData.SessionStatus.Count++
+	sData := data.GetWordListForSession(sid)
+	sData.Session.Count++
 	
 	c.Header("Content-Type", "application/json")
-	c.JSON(200, sData.SessionWords)
+	c.JSON(200, sData.Words)
 }

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"unicode"
 	"sort"
+	"bytes"
 	
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
@@ -17,7 +18,7 @@ import (
 
 var GlobalConfig Config
 var GlobalWordList WordList
-var GlobalSessionData []SessionData
+var GlobalWordListStorage []WordList
 
 type SorterWordByOccurance []Word
 
@@ -25,45 +26,51 @@ func (a SorterWordByOccurance) Len() int           { return len(a) }
 func (a SorterWordByOccurance) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a SorterWordByOccurance) Less(i, j int) bool { return a[i].Occurance > a[j].Occurance }
 
-func GetSessionData(sid int) *SessionData {
+func GetNewSessionID() int {
+	GlobalConfig.LastUsedSID++
+	return GlobalConfig.LastUsedSID
+}
+func GetWordListForSession(sid int) *WordList {
 	//fmt.Println("GetSessionData sid=" + strconv.Itoa(sid))
 	
-	for i := 0; i < len(GlobalSessionData); i++ {
-		if GlobalSessionData[i].SessionID == sid {
-			return &GlobalSessionData[i]
+	for i := 0; i < len(GlobalWordListStorage); i++ {
+		if GlobalWordListStorage[i].Session.SessionID == sid {
+			return &GlobalWordListStorage[i]
 		}
 	}
 	
-	var sData = SessionData {
+	var sData = SessionStatus {
 		SessionID: sid,
-		SessionStatus: Status {
-			Count: 0,
-			RequestExecution: false,
-			ExecutionStarted: false,
-			ExecutionFinished: false,
-			PageToScan: "",
-			DomainsAllowed: "",
-			NumberLinksFound: 0,
-			NumberLinksVisited: 0,
-			WordsScanned: 0,
-		},
-		SessionWords: nil,
+		Count: 0,
+		RequestExecution: false,
+		ExecutionStarted: false,
+		ExecutionFinished: false,
+		PageToScan: "",
+		DomainsAllowed: "",
+		NumberLinksFound: 0,
+		NumberLinksVisited: 0,
+		WordsScanned: 0,
 	}
-	GlobalSessionData = append(GlobalSessionData, sData)
-    return GetSessionData(sid)
+	var wl = WordList {
+		Session: sData,
+		Words: nil,
+		Tests: nil,
+	}
+	GlobalWordListStorage = append(GlobalWordListStorage, wl)
+    return GetWordListForSession(sid)
 }
-func SetSessionData(sData SessionData) {
+func SetSessionData(sData SessionStatus) {
 	//fmt.Println("SetSessionData sid=" + strconv.Itoa(sData.SessionID))
 	
-	for i := 0; i < len(GlobalSessionData); i++ {
-		if GlobalSessionData[i].SessionID == sData.SessionID {
-			GlobalSessionData[i] = sData
+	for i := 0; i < len(GlobalWordListStorage); i++ {
+		if GlobalWordListStorage[i].Session.SessionID == sData.SessionID {
+			GlobalWordListStorage[i].Session = sData
 		}
 	}
 }
 
-func ReadGlobalWordlist() error {
-	fmt.Println("readGlobalWordlist")
+func ReadGlobalWordlistFromRemote() error {
+	fmt.Println("ReadGlobalWordlist")
 	fmt.Println("have GlobalWordlist.Words = " + strconv.Itoa(len(GlobalWordList.Words)))
 	
     var err error
@@ -89,58 +96,111 @@ func ReadGlobalWordlist() error {
 
 	return nil
 }
+func StoreWordlistAtRemote(wl WordList) error {
+	fmt.Println("StoreWordlist")
+	
+    var err error
+	var resp *http.Response
+	var body []byte
+	var requestUrl string = ""
+	//var client http.Client
+	
+    requestUrl = GlobalConfig.WordListStorageUrl + "/wordlist"
+    fmt.Println("connect to wordliststorage = " + requestUrl)
+	
+    payload, err := json.Marshal(wl)
+	if err != nil {
+        return err
+    }
+	
+    req, err := http.NewRequest("PUT", requestUrl, bytes.NewBuffer(payload))
+	if err != nil {
+        return err
+    }
+	
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err = client.Do(req)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+
+    body, err = ioutil.ReadAll(resp.Body)
+    if err != nil {
+        return err
+    }
+    
+	var s ResponseStatus
+    json.Unmarshal(body, &s)
+    fmt.Println("got s.Code = " + strconv.Itoa(s.Code))
+    fmt.Println("got s.Text = " + s.Text)
+	
+	return err
+}
 
 func ExecuteLongRunningTaskOnRequest(sid int) {
 	fmt.Println("ExecuteLongRunningTaskOnRequest sid = " + strconv.Itoa(sid))
-    sData := GetSessionData(sid)
-	//fmt.Println(sData.SessionStatus)
+    sData := GetWordListForSession(sid)
+	//fmt.Println(sData.Session)
 	
-		if sData.SessionStatus.RequestExecution && !sData.SessionStatus.ExecutionStarted {
+		if sData.Session.RequestExecution && !sData.Session.ExecutionStarted {
 			
 			// just run once
-			sData.SessionStatus.RequestExecution = false
+			sData.Session.RequestExecution = false
 			
-			d := sData.SessionStatus.PageToScan
+			d := sData.Session.PageToScan
 			last1 := d[len(d)-1:]
 			if (last1 == "/") {
 				d = d[:len(d)-1]
-				sData.SessionStatus.PageToScan = d
+				sData.Session.PageToScan = d
 			}
 			d = strings.Replace(d, "https://", "", 1)
 			d = strings.Replace(d, "http://", "", 1)
-			sData.SessionStatus.DomainsAllowed = d
-			sData.SessionStatus.NumberLinksFound = 0
-			sData.SessionStatus.NumberLinksVisited = 0
-			sData.SessionStatus.ExecutionStarted = true
-			sData.SessionStatus.ExecutionFinished = false
-			sData.SessionStatus.WordsScanned = 0
+			sData.Session.DomainsAllowed = d
+			sData.Session.NumberLinksFound = 0
+			sData.Session.NumberLinksVisited = 0
+			sData.Session.ExecutionStarted = true
+			sData.Session.ExecutionFinished = false
+			sData.Session.WordsScanned = 0
 			
 			//fmt.Println(sData)
 			
-			fmt.Println("before: have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
+			fmt.Println("before: have sData.Words = " + strconv.Itoa(len(sData.Words)))
 			
 			Crawler(sid)
 			
-			fmt.Println("after: have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
-			sData.SessionWords = DeleteWordsWithOccuranceZero(sData.SessionWords)
-			fmt.Println("after delete: have sData.SessionWords = " + strconv.Itoa(len(sData.SessionWords)))
-			sort.Sort(SorterWordByOccurance(sData.SessionWords))
-			//fmt.Println(sData.SessionWords)
+			fmt.Println("after: have sData.SessionWords = " + strconv.Itoa(len(sData.Words)))
+			sData.Words = DeleteWordsWithOccuranceZero(sData.Words)
+			fmt.Println("after delete: have sData.Words = " + strconv.Itoa(len(sData.Words)))
+			sort.Sort(SorterWordByOccurance(sData.Words))
+			//fmt.Println(sData.Words)
 			
-			sData.SessionStatus.ExecutionStarted = false
-			sData.SessionStatus.ExecutionFinished = true
+			sData.Session.ExecutionStarted = false
+			sData.Session.ExecutionFinished = true
 			
+			if len(sData.Words) > 0 && GlobalConfig.WordListStorageUrl != "" {
+				var wl WordList
+				wl.Session.SessionID = sData.Session.SessionID
+				wl.Session.PageToScan = sData.Session.PageToScan
+				wl.Session.NumberLinksFound = sData.Session.NumberLinksFound
+				wl.Session.NumberLinksVisited = sData.Session.NumberLinksVisited
+				wl.Session.WordsScanned = sData.Session.WordsScanned
+				wl.Words = sData.Words
+				StoreWordlistAtRemote(wl)
+			}
 		}
 }
 func Crawler(sid int) {
 	fmt.Println("Crawler sid = " + strconv.Itoa(sid))
-	sData := GetSessionData(sid)
-	fmt.Println("mainPage = " + sData.SessionStatus.PageToScan + ", allowedDomains = " + sData.SessionStatus.DomainsAllowed)
+	sData := GetWordListForSession(sid)
+	fmt.Println("mainPage = " + sData.Session.PageToScan + ", allowedDomains = " + sData.Session.DomainsAllowed)
 	
 	// Instantiate default collector
 	c := colly.NewCollector(
 		// visit only domains
-		colly.AllowedDomains(sData.SessionStatus.DomainsAllowed),
+		colly.AllowedDomains(sData.Session.DomainsAllowed),
 	)
 
 	// On every a element which has href attribute call callback
@@ -148,7 +208,7 @@ func Crawler(sid int) {
 		link := e.Attr("href")
 		// print link
 		//fmt.Printf("Link found: %q -> %s\n", e.Text, link)
-		sData.SessionStatus.NumberLinksFound++
+		sData.Session.NumberLinksFound++
 		
 		if strings.HasSuffix(link, "/") || strings.HasSuffix(link, ".html") || strings.HasSuffix(link, ".htm") {
 			// Visit link found on page
@@ -159,7 +219,7 @@ func Crawler(sid int) {
 
 	// Before making a request ..
 	c.OnRequest(func(r *colly.Request) {
-		sData.SessionStatus.NumberLinksVisited++
+		sData.Session.NumberLinksVisited++
 		//fmt.Println("Visiting", r.URL.String())
 	})
 	
@@ -189,12 +249,12 @@ func Crawler(sid int) {
 	})
 	
 	//fmt.Println("start crawler")
-	c.Visit(sData.SessionStatus.PageToScan)
+	c.Visit(sData.Session.PageToScan)
 }
 
 func FindWordsFromText(t string, sid int) {
 	//fmt.Println("FindWordsFromText sid = " + strconv.Itoa(sid))
-	sData := GetSessionData(sid)
+	sData := GetWordListForSession(sid)
 	// replace tabs
 	tt := TabToSpace(t);
 				
@@ -208,10 +268,10 @@ func FindWordsFromText(t string, sid int) {
 	for _, value := range tt_ {
 		ss := strings.TrimSpace(value) 
 		if len(ss) > 1 { 
-			sData.SessionStatus.WordsScanned++
-			for i := 0; i < len(sData.SessionWords); i++ {
-				if sData.SessionWords[i].Name == ss {
-					sData.SessionWords[i].Occurance++
+			sData.Session.WordsScanned++
+			for i := 0; i < len(sData.Words); i++ {
+				if sData.Words[i].Name == ss {
+					sData.Words[i].Occurance++
 					//fmt.Println("found word = " + ss)
 					//count++
 					break

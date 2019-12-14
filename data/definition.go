@@ -13,7 +13,6 @@ type Test struct {
     Name  string	`json:"name"`
     Category  string	`json:"category"`
 }
-
 type Word struct {
 	Id int	`json:"id"`
     Name  string	`json:"name"`
@@ -22,19 +21,19 @@ type Word struct {
 	Tests []Test	`json:"tests"`
 }
 type WordList struct {
-    Type  string	`json:"type"`
-    LastUsedId  int	`json:"lastusedid"`
-    Count  int	`json:"count"`
-	Tests []Test	`json:"tests"`
+	Session SessionStatus	`json:"session"`
 	Words []Word	`json:"words"`
+	Tests []Test	`json:"tests"`
 }
 type Config struct {
 	LastUsedSID  int	`json:"lastusedsid"`
 	CountUsedSID  int	`json:"countusedsid"`
     WordListUrl  string	`json:"wordlisturl"`
+    WordListStorageUrl  string	`json:"wordliststorageurl"`
 }
-type Status struct {
-    Count int `json:"sessioncount"`
+type SessionStatus struct {
+    SessionID int `json:"sid"`
+    Count int `json:"count"`
     RequestExecution bool `json:"requestexecution"`
 	PageToScan string `json:"pagetoscan"`
 	DomainsAllowed string `json:"domainsallowed"`
@@ -44,11 +43,7 @@ type Status struct {
 	ExecutionFinished bool `json:"executionfinished"`
 	WordsScanned int `json:"wordsscanned"`
 }
-type SessionData struct {
-    SessionID int `json:"sid"`
-    SessionStatus Status `json:"sessionstatus"`
-	SessionWords []Word `json:"words"`
-}
+
 func DeleteWordsWithOccuranceZero(wl []Word) ([]Word) {
     var wlNew []Word
 	for i := 0; i < len(wl); i++ {

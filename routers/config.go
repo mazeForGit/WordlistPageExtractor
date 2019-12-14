@@ -7,7 +7,7 @@ import (
 	data "github.com/mazeForGit/WordlistPageExtractor/data"
 )
 func ConfigGET(c *gin.Context) {
-	data.GlobalConfig.CountUsedSID = len(data.GlobalSessionData)
+	data.GlobalConfig.CountUsedSID = len(data.GlobalWordListStorage)
 	c.JSON(200, data.GlobalConfig)
 }
 func ConfigPUT(c *gin.Context) {
@@ -34,7 +34,7 @@ func ConfigPOST(c *gin.Context) {
 		return
 	}
 	
-	err = data.ReadGlobalWordlist()
+	err = data.ReadGlobalWordlistFromRemote()
 	if err != nil {
 		s = data.ResponseStatus{Code: 422, Text: "can't read global wordlist"}
 		c.JSON(200, s)

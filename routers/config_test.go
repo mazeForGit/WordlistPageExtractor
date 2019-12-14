@@ -40,7 +40,7 @@ func Test_ConfigPOST_validData(t *testing.T) {
 
 	payload, err := json.Marshal(c)
 
-	if err != nil {
+	if err == nil {
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("POST", "/config", bytes.NewBuffer(payload))
 		router.ServeHTTP(w, req)
