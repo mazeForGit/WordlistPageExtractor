@@ -11,6 +11,7 @@ import (
 	"unicode"
 	"sort"
 	"bytes"
+	"time"
 	
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
@@ -196,7 +197,14 @@ func Crawler(sid int) {
 	c := colly.NewCollector(
 		// visit only domains
 		colly.AllowedDomains(sData.Session.DomainsAllowed),
+		colly.Async(true),
 	)
+	c.IgnoreRobotsTxt = false
+	c.Limit(&colly.LimitRule {
+		DomainGlob: sData.Session.DomainsAllowed + "/*", 
+		Delay: 2 * time.Second,
+		Parallelism: 6,
+	})
 
 	// On every a element which has href attribute call callback
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
@@ -215,7 +223,7 @@ func Crawler(sid int) {
 	// Before making a request ..
 	c.OnRequest(func(r *colly.Request) {
 		sData.Session.NumberLinksVisited++
-		//fmt.Println("Visiting", r.URL.String())
+		fmt.Println("sid = " + strconv.Itoa(sid) + " .. visiting", r.URL.String())
 	})
 	
 	// after making a request ..
@@ -245,6 +253,7 @@ func Crawler(sid int) {
 	
 	//fmt.Println("start crawler")
 	c.Visit(sData.Session.PageToScan)
+	c.Wait()
 }
 
 func FindWordsFromText(t string, sid int) {
