@@ -35,7 +35,7 @@ func main() {
 	router.NoRoute(routers.NotFoundError)
 	router.GET("/content", routers.Index)
 	router.GET("/extractor", routers.Extractor)
-	router.GET("/voter", routers.Voter)
+//	router.GET("/voter", routers.Voter)
 	router.GET("/health", routers.HealthGET)
 	
 	// global config

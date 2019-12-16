@@ -24,10 +24,12 @@ func StatusGET(c *gin.Context) {
 	sData := data.GetWordListForSession(sid)
 	sData.Session.Count++
 	
+	c.Header("Content-Type", "application/json")
 	c.JSON(200, sData.Session)
 }
 func StatusPOST(c *gin.Context) {
 
+	c.Header("Content-Type", "application/json")
 	session := sessions.Default(c)
 	
 	var sid int
