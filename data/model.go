@@ -2,6 +2,8 @@ package data
 
 import (
 	"fmt"
+	//"net"
+    "net/url"
 	"net/http"
 	"encoding/json"
 	"io/ioutil"
@@ -141,7 +143,28 @@ func StoreWordlistAtRemote(wl WordList) error {
 	
 	return err
 }
-
+// from: https://gobyexample.com/url-parsing
+func GetDomainAndMainPageByUrl(s string) (string, string) {
+	//fmt.Println("GetDomainAndMainPageByUrl .. url = " + s)
+	
+	var domain string = ""
+	var mainpage string = ""
+	
+	u, err := url.Parse(s)
+    if err != nil {
+        fmt.Println(err)
+    }
+	
+	domain = u.Host
+	
+	if (u.Scheme == "") {
+		mainpage = "https://" + u.Host
+	} else {
+		mainpage = u.Scheme + "://" + u.Host
+	}
+	
+	return mainpage, domain
+}
 func ExecuteLongRunningTaskOnRequest(sid int) {
 	fmt.Println("ExecuteLongRunningTaskOnRequest sid = " + strconv.Itoa(sid))
     sData := GetWordListForSession(sid)
@@ -153,14 +176,8 @@ func ExecuteLongRunningTaskOnRequest(sid int) {
 			sData.Session.RequestExecution = false
 			
 			sData.Session.PageToScan = strings.TrimSpace(sData.Session.PageToScan)
-			d := sData.Session.PageToScan
-			last1 := d[len(d)-1:]
-			if (last1 == "/") {
-				d = d[:len(d)-1]
-				sData.Session.PageToScan = d
-			}
-			d = strings.Replace(d, "https://", "", 1)
-			d = strings.Replace(d, "http://", "", 1)
+			m, d := GetDomainAndMainPageByUrl(sData.Session.PageToScan)
+			sData.Session.PageToScan = m
 			sData.Session.DomainsAllowed = d
 			sData.Session.NumberLinksFound = 0
 			sData.Session.NumberLinksVisited = 0
@@ -195,11 +212,13 @@ func Crawler(sid int) {
 	
 	// Instantiate default collector
 	c := colly.NewCollector(
+		// user agend
+		colly.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/600.7.12 (KHTML, like Gecko) Version/8.0.7 Safari/600.7.12"),
 		// visit only domains
 		colly.AllowedDomains(sData.Session.DomainsAllowed),
 		colly.Async(true),
 	)
-	c.IgnoreRobotsTxt = false
+	//c.IgnoreRobotsTxt = false
 	c.Limit(&colly.LimitRule {
 		DomainGlob: sData.Session.DomainsAllowed + "/*", 
 		Delay: 2 * time.Second,
@@ -213,11 +232,13 @@ func Crawler(sid int) {
 		//fmt.Printf("Link found: %q -> %s\n", e.Text, link)
 		sData.Session.NumberLinksFound++
 		
-		if strings.HasSuffix(link, "/") || strings.HasSuffix(link, ".html") || strings.HasSuffix(link, ".htm") {
+		// remark:
+		// this want work for query or parameters at the end, see e.g. bdbos
+		//if strings.HasSuffix(link, "/") || strings.HasSuffix(link, ".html") || strings.HasSuffix(link, ".htm") {
 			// Visit link found on page
 			// Only those links are visited which are in AllowedDomains
 			c.Visit(e.Request.AbsoluteURL(link))
-		}
+		//}
 	})
 
 	// Before making a request ..
@@ -236,6 +257,7 @@ func Crawler(sid int) {
 			var t string
 			
 			t = string(r.Body)
+			//fmt.Println(t)
 			
 			// from: https://stackoverflow.com/questions/44441665/how-to-extract-only-text-from-html-in-golang
 			p := strings.NewReader(t)
@@ -246,7 +268,7 @@ func Crawler(sid int) {
 
 			// the text only from the body
 			t = doc.Text()
-			
+			//fmt.Println(t)
 			FindWordsFromText(t, sid)
 		}
 	})
