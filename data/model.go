@@ -81,7 +81,10 @@ func ReadGlobalWordlistFromRemote() error {
 	var body []byte
 	var requestUrl string = ""
 	
-    requestUrl = GlobalConfig.WordListUrl + "/wordlist?testOnly=true"
+	// would reduce the number of words
+    //requestUrl = GlobalConfig.WordListUrl + "/wordlist?testOnly=true"
+	// but here we need all to find out which words without test are used as well
+	requestUrl = GlobalConfig.WordListUrl + "/word"
     fmt.Println("connect to wordlist and get words with tests = " + requestUrl)
     resp, err = http.Get(requestUrl)
     if err != nil {
@@ -94,7 +97,8 @@ func ReadGlobalWordlistFromRemote() error {
         return err
     }
     
-    json.Unmarshal(body, &GlobalWordList)
+    //json.Unmarshal(body, &GlobalWordList)
+	json.Unmarshal(body, &GlobalWordList.Words)
     fmt.Println("got GlobalWordList.Words = " + strconv.Itoa(len(GlobalWordList.Words)))
 
 	return nil
