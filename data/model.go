@@ -84,7 +84,7 @@ func ReadGlobalWordlistFromRemote() error {
 	// would reduce the number of words
     //requestUrl = GlobalConfig.WordListUrl + "/wordlist?testOnly=true"
 	// but here we need all to find out which words without test are used as well
-	requestUrl = GlobalConfig.WordListUrl + "/word"
+	requestUrl = GlobalConfig.WordListUrl + "/words?format=json"
     fmt.Println("connect to wordlist and get words with tests = " + requestUrl)
     resp, err = http.Get(requestUrl)
     if err != nil {
@@ -297,7 +297,7 @@ func FindWordsFromText(t string, sid int) {
 	//count := 0
 	for _, value := range tt_ {
 		ss := strings.TrimSpace(value) 
-		if len(ss) > 1 { 
+		if len(ss) > 2 { 
 			sData.Session.WordsScanned++
 			for i := 0; i < len(sData.Words); i++ {
 				if sData.Words[i].Name == ss {
