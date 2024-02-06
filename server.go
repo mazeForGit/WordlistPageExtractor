@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"flag"
 	"os"
 	
 	"github.com/gin-gonic/gin"
@@ -9,6 +11,7 @@ import (
 	"github.com/gin-contrib/sessions/memstore"
 	log "github.com/sirupsen/logrus"
 
+	model "github.com/mazeForGit/WordlistPageExtractor/model"
 	routers "github.com/mazeForGit/WordlistPageExtractor/routers"
 )
 
@@ -22,6 +25,31 @@ func getPort() string {
 
 func main() {
 
+	//
+	// define and handle flags
+	var flagServerName = flag.String("name", "wordListStorage", "server name")
+	var flagServerPort = flag.String("port", "6001", "server port")
+	var fileConfig = flag.String("frConfig", "./data/config.json", "file containing config")
+	var fileWordList = flag.String("frWL", "./data/wordList.json", "file containing wordList")
+	flag.Parse()
+	
+	//
+	// handle flags
+	if *fileConfig != "" {
+		err := model.ReadConfigurationFromFile(*fileConfig)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
+	}
+	if *fileWordList != "" {
+		err := model.ReadWordListFromFile(*fileWordList)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(-1)
+		}
+	}
+	
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 

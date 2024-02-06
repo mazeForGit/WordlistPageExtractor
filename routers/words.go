@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/sessions"
 	
-	data "github.com/mazeForGit/WordlistPageExtractor/data"
+	model "github.com/mazeForGit/WordlistPageExtractor/model"
 )
 
 func WordsGET(c *gin.Context) {
@@ -14,14 +14,14 @@ func WordsGET(c *gin.Context) {
 	var sid int
 	v := session.Get("sid")
 	if v == nil {
-		sid = data.GetNewSessionID()
+		sid = model.GetNewSessionID()
 		session.Set("sid", sid)
 		session.Save()
 	} else {
 		sid = v.(int)
 	}
 		
-	sData := data.GetWordListForSession(sid)
+	sData := model.GetWordListForSession(sid)
 	sData.Session.Count++
 	
 	c.Header("Content-Type", "application/json")

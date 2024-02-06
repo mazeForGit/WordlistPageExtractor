@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"encoding/json"
-	"github.com/Wordlist/WordlistPageExtractor/data"
 	"bytes"
+	
+	model "github.com/mazeForGit/WordlistPageExtractor/model"
 )
 // use
 // go test -v ./routers -run Test
@@ -24,9 +25,9 @@ func Test_ConfigGET_emptyData(t *testing.T) {
 		t.Fatalf("You received a %v error.", w.Code)
 	}
 
-	json.Unmarshal(w.Body.Bytes(), &data.GlobalConfig)
+	json.Unmarshal(w.Body.Bytes(), &model.GlobalConfig)
 
-	if data.GlobalConfig.WordListUrl != "" {
+	if model.GlobalConfig.WordListUrl != "" {
 		t.Errorf("expected empty config")
 	}
 }
@@ -34,7 +35,7 @@ func Test_ConfigPOST_validData(t *testing.T) {
 	router := gin.Default()
 	router.POST("/config", ConfigPOST)
 
-	c := data.Config{
+	c := model.Config{
 			RequestExecution: false, 
 			WordListUrl: "test"}
 
@@ -49,7 +50,7 @@ func Test_ConfigPOST_validData(t *testing.T) {
 			t.Fatalf("You received a %v error.", w.Code)
 		}
 
-		var s data.Status
+		var s model.Status
 		json.Unmarshal(w.Body.Bytes(), &s)
 
 		if s.Code != 200 && s.Text != "entity added" {

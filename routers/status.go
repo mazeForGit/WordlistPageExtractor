@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/sessions"
 	
-	data "github.com/mazeForGit/WordlistPageExtractor/data"
+	model "github.com/mazeForGit/WordlistPageExtractor/model"
 )
 
 func StatusGET(c *gin.Context) {
@@ -14,14 +14,14 @@ func StatusGET(c *gin.Context) {
 	var sid int
 	v := session.Get("sid")
 	if v == nil {
-		sid = data.GetNewSessionID()
+		sid = model.GetNewSessionID()
 		session.Set("sid", sid)
 		session.Save()
 	} else {
 		sid = v.(int)
 	}
 	
-	sData := data.GetWordListForSession(sid)
+	sData := model.GetWordListForSession(sid)
 	sData.Session.Count++
 	
 	c.Header("Content-Type", "application/json")
@@ -35,31 +35,31 @@ func StatusPOST(c *gin.Context) {
 	var sid int
 	v := session.Get("sid")
 	if v == nil {
-		sid = data.GetNewSessionID()
+		sid = model.GetNewSessionID()
 		session.Set("sid", sid)
 		session.Save()
 	} else {
 		sid = v.(int)
 	}
 		
-	sData := data.GetWordListForSession(sid)
+	sData := model.GetWordListForSession(sid)
 	sData.Session.Count++
 	
-	var s data.ResponseStatus
+	var s model.ResponseStatus
 	err := c.BindJSON(&sData.Session)
 	
 	if err != nil {
-		s = data.ResponseStatus{Code: 422, Text: "wrong request"}
+		s = model.ResponseStatus{Code: 422, Text: "wrong request"}
 		c.JSON(200, s)
 		return
 	}
 	
 	sData.Session.RequestExecution = true
-	sData.Words = data.CopyWords(data.GlobalWordList.Words)
-	//data.SetSessionData(sData)
+	sData.Words = model.CopyWords(model.GlobalWordList.Words)
+	//model.SetSessionData(sData)
 	
-	go data.ExecuteLongRunningTaskOnRequest(sid)
+	go model.ExecuteLongRunningTaskOnRequest(sid)
 
-	s = data.ResponseStatus{Code: 200, Text: "start execution"}
+	s = model.ResponseStatus{Code: 200, Text: "start execution"}
 	c.JSON(200, s)
 }
