@@ -1,0 +1,53 @@
+package model
+
+import (
+	"fmt"
+	"strconv"
+)
+
+type Dispatcher struct {
+	// A pool of workers channels that are registered with the dispatcher
+	WorkerPool chan chan Job
+	MaxWorker int
+	MaxQueue int
+}
+
+func NewDispatcher(maxWorker int, maxQueue int) *Dispatcher {
+fmt.Println(". dispatcher.NewDispatcher .. maxWorker = " + strconv.Itoa(maxWorker) + ", maxQueue = " + strconv.Itoa(maxQueue))
+
+	pool := make(chan chan Job, maxWorker)
+	return &Dispatcher{WorkerPool: pool, MaxWorker: maxWorker, MaxQueue: maxQueue}
+}
+
+func (d *Dispatcher) Run() {
+fmt.Println(". dispatcher.Run")
+
+    // starting n number of workers
+	for i := 0; i < d.MaxWorker; i++ {
+		worker := NewWorker(d.WorkerPool)
+		worker.Start()
+	}
+
+	go d.Dispatch()
+}
+
+func (d *Dispatcher) Dispatch() {
+fmt.Println(". dispatcher.Dispatch")
+
+	for {
+		select {
+		case job := <-JobQueue:
+fmt.Println("+ dispatch")
+fmt.Println(job)
+
+			// a job request has been received
+			go func(job Job) {
+				// try to obtain a worker job channel that is available.
+				// this will block until a worker is idle
+				jobChannel := <-d.WorkerPool
+				// dispatch the job to the worker job channel
+				jobChannel <- job
+			}(job)
+		}
+	}
+}

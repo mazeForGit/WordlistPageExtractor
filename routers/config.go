@@ -7,7 +7,6 @@ import (
 	model "github.com/mazeForGit/WordlistPageExtractor/model"
 )
 func ConfigGET(c *gin.Context) {
-	model.GlobalConfig.CountUsedSID = len(model.GlobalWordListStorage)
 	c.JSON(200, model.GlobalConfig)
 }
 func ConfigPOST(c *gin.Context) {

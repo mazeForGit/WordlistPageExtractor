@@ -1,4 +1,4 @@
-package data
+package model
 
 import (
 	//"errors"
@@ -21,17 +21,15 @@ type Word struct {
 	Tests []Test	`json:"tests"`
 }
 type WordList struct {
-	Session SessionStatus	`json:"session"`
+	Session Session	`json:"session"`
 	Words []Word	`json:"words"`
 	Tests []Test	`json:"tests"`
 }
 type Config struct {
-	LastUsedSID  int	`json:"lastusedsid"`
-	CountUsedSID  int	`json:"countusedsid"`
     WordListUrl  string	`json:"wordlisturl"`
     WordListStorageUrl  string	`json:"wordliststorageurl"`
 }
-type SessionStatus struct {
+type Session struct {
     SessionID int `json:"sid"`
     Count int `json:"count"`
     RequestExecution bool `json:"requestexecution"`
@@ -42,6 +40,7 @@ type SessionStatus struct {
 	ExecutionStarted bool `json:"executionstarted"`
 	ExecutionFinished bool `json:"executionfinished"`
 	WordsScanned int `json:"wordsscanned"`
+	PdfsScanned int `json:"pdfsscanned"`
 }
 
 func DeleteWordsWithOccuranceZero(wl []Word) ([]Word) {

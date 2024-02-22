@@ -15,20 +15,12 @@ import (
 	routers "github.com/mazeForGit/WordlistPageExtractor/routers"
 )
 
-func getPort() string {
-	p := os.Getenv("HTTP_PLATFORM_PORT")
-	if p != "" {
-		return ":" + p
-	}
-	return ":8080"
-}
-
 func main() {
 
 	//
 	// define and handle flags
 	var flagServerName = flag.String("name", "wordListStorage", "server name")
-	var flagServerPort = flag.String("port", "6001", "server port")
+	var flagServerPort = flag.String("port", "6002", "server port")
 	var fileConfig = flag.String("frConfig", "./data/config.json", "file containing config")
 	var fileWordList = flag.String("frWL", "./data/wordList.json", "file containing wordList")
 	flag.Parse()
@@ -50,6 +42,15 @@ func main() {
 		}
 	}
 	
+	// make a channel with a capacity of maxWorkers.
+	maxWorkers := 3
+	model.JobChannel = make(chan model.Job, maxWorkers)
+	// starting workers
+	for i := 0; i < maxWorkers; i++ {
+		go model.Worker(i, model.JobChannel)
+	}
+	
+
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 
@@ -76,6 +77,16 @@ func main() {
 	router.POST("/status", routers.StatusPOST)
 	router.GET("/words", routers.WordsGET)
 	
-	log.Info("starting application on port " + getPort())
-	router.Run(getPort())
+	log.Info("run server name = " + *flagServerName + " on port = " + port(*flagServerPort))
+	router.Run(port(*flagServerPort))
+}
+//
+// get port from environment or cli
+//
+func port(flagServerPort string) string {
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = flagServerPort
+	}
+	return ":" + port
 }

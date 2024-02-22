@@ -1,65 +1,81 @@
 package routers
 
 import (
+	"fmt"
+	"strconv"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-contrib/sessions"
-	
 	model "github.com/mazeForGit/WordlistPageExtractor/model"
 )
 
 func StatusGET(c *gin.Context) {
-	
-	session := sessions.Default(c)
-	
-	var sid int
-	v := session.Get("sid")
-	if v == nil {
-		sid = model.GetNewSessionID()
-		session.Set("sid", sid)
-		session.Save()
-	} else {
-		sid = v.(int)
-	}
-	
-	sData := model.GetWordListForSession(sid)
-	sData.Session.Count++
-	
-	c.Header("Content-Type", "application/json")
-	c.JSON(200, sData.Session)
-}
-func StatusPOST(c *gin.Context) {
 
-	c.Header("Content-Type", "application/json")
-	session := sessions.Default(c)
-	
-	var sid int
-	v := session.Get("sid")
-	if v == nil {
-		sid = model.GetNewSessionID()
-		session.Set("sid", sid)
-		session.Save()
-	} else {
-		sid = v.(int)
+	sidString := c.Query("sid")
+	if sidString == "" {
+		c.String(400, "missing parameter: sid")
+		return
 	}
-		
-	sData := model.GetWordListForSession(sid)
-	sData.Session.Count++
-	
-	var s model.ResponseStatus
-	err := c.BindJSON(&sData.Session)
-	
+	sid, err := strconv.Atoi(sidString)
 	if err != nil {
-		s = model.ResponseStatus{Code: 422, Text: "wrong request"}
-		c.JSON(200, s)
+		c.String(400, "wrong parameter: sid")
 		return
 	}
 	
-	sData.Session.RequestExecution = true
-	sData.Words = model.CopyWords(model.GlobalWordList.Words)
-	//model.SetSessionData(sData)
+	wl, err := model.GetWordListForSession(sid)
+	if err != nil {
+		c.String(400, "wrong parameter: sid")
+		return
+	}
 	
-	go model.ExecuteLongRunningTaskOnRequest(sid)
+	wl.Session.Count++
+	c.Header("Content-Type", "application/json")
+	c.JSON(200, wl.Session)
+}
+//
+//
+//
+func StatusPOST(c *gin.Context) {
+fmt.Println(". StatusPOST")
+	
+	var session model.Session
+	err := c.BindJSON(&session)
+	if err != nil {
+		c.String(422, "wrong request")
+		return
+	}
+	
+	wl, err := model.NewSession(session)
+	
+fmt.Println("new session: ", wl.Session)
+	if err != nil {
+		c.String(422, err.Error())
+		return
+	}
 
-	s = model.ResponseStatus{Code: 200, Text: "start execution"}
-	c.JSON(200, s)
+	// create job
+	work := model.Job{Wordlist: wl}
+	
+	// push the work onto the queue
+	// model.JobChannel <- work
+	if !tryEnqueue(work) {
+		c.String(503, "Maximum capacity reached. Try later.")
+		return
+	}
+	
+	c.Header("Content-Type", "application/json")
+	c.JSON(200, wl.Session)
+}
+//
+// tryEnqueue tries to enqueue a job to the given job channel. 
+// Returns true if the operation was successful, 
+// and false if enqueuing would not have been
+// possible without blocking. 
+// Job is not enqueued in the latter case.
+//
+func tryEnqueue(work model.Job) bool {
+    select {
+    case model.JobChannel <- work:
+        return true
+    default:
+        return false
+    }
 }

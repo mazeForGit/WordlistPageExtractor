@@ -1,29 +1,30 @@
 package routers
 
 import (
+	"strconv"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-contrib/sessions"
-	
 	model "github.com/mazeForGit/WordlistPageExtractor/model"
 )
 
 func WordsGET(c *gin.Context) {
 	
-	session := sessions.Default(c)
-	
-	var sid int
-	v := session.Get("sid")
-	if v == nil {
-		sid = model.GetNewSessionID()
-		session.Set("sid", sid)
-		session.Save()
-	} else {
-		sid = v.(int)
+	sidString := c.Query("sid")
+	if sidString == "" {
+		c.String(400, "missing parameter: sid")
+		return
 	}
-		
-	sData := model.GetWordListForSession(sid)
-	sData.Session.Count++
+	sid, err := strconv.Atoi(sidString)
+	if err != nil {
+		c.String(400, "wrong parameter: sid")
+		return
+	}
+	
+	wl, err := model.GetWordListForSession(sid)
+	if err != nil {
+		c.String(400, "wrong parameter: sid")
+		return
+	}
 	
 	c.Header("Content-Type", "application/json")
-	c.JSON(200, sData.Words)
+	c.JSON(200, wl.Words)
 }

@@ -6,10 +6,12 @@ class App extends React.Component {
 			time: Date.now(),
 			requestexecution: true,
 			pagetoscan: "enter url",
+			sessionid: 0,
 			pagescanned: "",
 			numberlinksfound: 0,
 			numberlinksvisited: 0,
 			wordsscanned: 0,
+			pdfsscanned: 0,
 			executionstarted: false,
 			executionfinished: false
 		};
@@ -26,7 +28,7 @@ class App extends React.Component {
 	}
 	componentDidMount() {
 		//console.log('App componentDidMount')
-		this.interval = setInterval(() => this.readConfigData(), 3000);
+		this.interval = setInterval(() => this.readConfigData(this.state.sessionid), 5000);
 		//console.log("this.state.pagetoscan = " + this.state.pagescanned);
 	}
 	componentWillUnmount() {
@@ -34,7 +36,7 @@ class App extends React.Component {
 	}
 	async startExecution() {
 		try {
-			console.log('App startExecution ..')
+			//console.log('App startExecution ..')
 			var reqUrl = ""
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/status";
@@ -57,7 +59,10 @@ class App extends React.Component {
 			});
 			const blocks = await res.json();
 			//console.log(blocks);
+			const SessionID = blocks.sid;
+			
 			this.setState({
+				sessionid: SessionID,
 				requestexecution: true,
 			})
 			//console.log(this.state);
@@ -65,36 +70,42 @@ class App extends React.Component {
 			console.log(e);
 		}
 	}
-	async readConfigData() {
+	async readConfigData(sessionid) {
 		try {
-			//console.log("this.state.requestexecution = " + this.state.requestexecution);
-			//console.log("this.state.executionstarted = " + this.state.executionstarted);
-			if (this.state.requestexecution || this.state.executionstarted) {
-				console.log('App readConfigData')
+			//console.log(". readConfigData: sessionid = " + sessionid);
+			
+			if (sessionid !== 0 && (this.state.requestexecution || this.state.executionstarted)) {
+				//console.log('App readConfigData')
 				var reqUrl = ""
 				if (window.location.port == "") {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + "/status";
 				} else {
 					reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/status";
 				}
+				reqUrl += "?sid=" + sessionid
 				//console.log("request to url = " + reqUrl);
+				
 				//console.log("read data ..");
 				const res = await fetch(reqUrl);
 				const blocks = await res.json();
+				//console.log(blocks);
+				const SessionID = blocks.sid;
 				const PageScanned = blocks.pagetoscan;
 				const NumberLinksFound = blocks.numberlinksfound;
 				const NumberLinksVisited = blocks.numberlinksvisited;
 				const WordsScanned = blocks.wordsscanned;
+				const PdfsScanned = blocks.pdfsscanned;
 				const ExecutionStarted = (/true/i).test(blocks.executionstarted);
 				const ExecutionFinished = (/true/i).test(blocks.executionfinished);
-				//console.log(blocks);
-
+				
 				this.setState({
 					time: Date.now(),
+					sessionid: SessionID,
 					pagescanned: PageScanned,
 					numberlinksfound: NumberLinksFound,
 					numberlinksvisited: NumberLinksVisited,
 					wordsscanned: WordsScanned,
+					pdfsscanned: PdfsScanned,
 					executionstarted: ExecutionStarted,
 					executionfinished: ExecutionFinished,
 				})
@@ -132,10 +143,11 @@ class App extends React.Component {
 					progress from backend : links found = { this.state.numberlinksfound }
 					, links visited = { this.state.numberlinksvisited }
 					, words extracted = { this.state.wordsscanned }
+					, pdfs extracted = { this.state.pdfsscanned }
 					, started = { this.state.executionstarted.toString()  }
 					, finished = { this.state.executionfinished.toString()  }
 				</div>
-				{(this.state.executionrequested || this.state.executionfinished) ? <Home pagescanned={this.state.pagescanned} /> : null}
+				{(this.state.executionrequested || this.state.executionfinished) ? <Home sessionid={this.state.sessionid} pagescanned={this.state.pagescanned} /> : null}
 		
 			</div>
 		);
@@ -145,6 +157,8 @@ class Home extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			pagescanned: "",
+			sessionid: 0,
 			words: [{"id": 0, "name": "no word present", "occurance": 0, "new": false, "tests": null},]
 		};
 
@@ -157,14 +171,14 @@ class Home extends React.Component {
 	
 	async serverRequest() {
 		try {
-			console.log('Home readData')
-			//console.log("Home this.props.pagescanned = " + this.props.pagescanned);
+			console.log("Home sessionid = " + this.props.sessionid);
 			var reqUrl = ""
 			if (window.location.port == "") {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + "/words";
 			} else {
 				reqUrl = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/words";
 			}
+			reqUrl += "?sid=" + this.props.sessionid
 			//console.log('Home request to url = ' + reqUrl);
 			//console.log('Home read data ..');
 				
@@ -190,7 +204,7 @@ class Home extends React.Component {
 	}
 	componentDidMount() {
 		//console.log("Home componentDidMount");
-		this.serverRequest();
+		this.serverRequest(this.state.sessionid);
 	}
 	render() {
 		return (
